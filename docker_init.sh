@@ -35,15 +35,25 @@ esac
 
 # 检查 sing-box 最新版本
 check_latest_sing-box() {
+  local FORCE_VERSION=""
+  local VERSION=""
+  
   # 检查是否强制指定版本
-  local FORCE_VERSION=$(wget --no-check-certificate --tries=2 --timeout=3 -qO- https://raw.githubusercontent.com/charmtv/sing-box01/refs/heads/main/force_version | sed 's/^[vV]//g')
+  FORCE_VERSION=$(wget --no-check-certificate --tries=2 --timeout=10 -qO- https://raw.githubusercontent.com/charmtv/sing-box01/refs/heads/main/force_version 2>/dev/null | sed 's/^[vV]//g' | tr -d '\r\n')
 
-  # 没有强制指定版本时，获取最新版本
-  grep -q '.' <<< "$FORCE_VERSION" || local FORCE_VERSION=$(wget --no-check-certificate --tries=2 --timeout=3 -qO- https://api.github.com/repos/SagerNet/sing-box/releases | awk -F '["v-]' '/tag_name/{print $5}' | sort -Vr | sed -n '1p')
+  # 如果没有强制指定版本，获取最新版本
+  if [ -z "$FORCE_VERSION" ] || ! grep -q '^[0-9]' <<< "$FORCE_VERSION"; then
+    info "未指定强制版本，获取最新版本..."
+    FORCE_VERSION=$(wget --no-check-certificate --tries=2 --timeout=10 -qO- https://api.github.com/repos/SagerNet/sing-box/releases/latest 2>/dev/null | grep -o '"tag_name":"[^"]*' | cut -d'"' -f4 | sed 's/^[vV]//g')
+  fi
 
-  # 获取最终版本号
-  local VERSION=$(wget --no-check-certificate --tries=2 --timeout=3 -qO- https://api.github.com/repos/SagerNet/sing-box/releases | awk -F '["v]' -v var="tag_name.*$FORCE_VERSION" '$0 ~ var {print $5; exit}')
-  VERSION=${VERSION:-'v1.12.0-beta.15'}
+  # 验证版本号格式
+  if [[ "$FORCE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+    VERSION="$FORCE_VERSION"
+  else
+    warning "无法获取有效版本号，使用默认版本"
+    VERSION="1.12.0-beta.15"
+  fi
 
   echo "$VERSION"
 }
@@ -53,19 +63,51 @@ install() {
   # 下载 sing-box
   echo "正在下载 sing-box ..."
   local ONLINE=$(check_latest_sing-box)
-  wget https://github.com/SagerNet/sing-box/releases/download/v$ONLINE/sing-box-$ONLINE-linux-$SING_BOX_ARCH.tar.gz -O- | tar xz -C ${WORK_DIR} sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box && mv ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box ${WORK_DIR}/sing-box && rm -rf ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH
+  
+  # 检查版本号是否获取成功
+  if [ -z "$ONLINE" ]; then
+    warning "获取 sing-box 版本失败，使用默认版本 v1.12.0-beta.15"
+    ONLINE="1.12.0-beta.15"
+  fi
+  
+  echo "下载 sing-box 版本: v$ONLINE"
+  
+  # 下载并验证 sing-box
+  if wget --no-check-certificate --continue --tries=3 --timeout=30 https://github.com/SagerNet/sing-box/releases/download/v$ONLINE/sing-box-$ONLINE-linux-$SING_BOX_ARCH.tar.gz -O- | tar xz -C ${WORK_DIR} sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box; then
+    mv ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box ${WORK_DIR}/sing-box && rm -rf ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH
+    chmod +x ${WORK_DIR}/sing-box
+    info "sing-box 下载成功！"
+  else
+    warning "sing-box 下载失败，请检查网络连接"
+    exit 1
+  fi
 
   # 下载 jq
   echo "正在下载 jq ..."
-  wget -O ${WORK_DIR}/jq https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-$JQ_ARCH && chmod +x ${WORK_DIR}/jq
+  if wget --no-check-certificate --tries=3 --timeout=30 -O ${WORK_DIR}/jq https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-$JQ_ARCH; then
+    chmod +x ${WORK_DIR}/jq
+    info "jq 下载成功！"
+  else
+    warning "jq 下载失败"
+  fi
 
   # 下载 qrencode
   echo "正在下载 qrencode ..."
-  wget -O ${WORK_DIR}/qrencode https://github.com/fscarmen/client_template/raw/main/qrencode-go/qrencode-go-linux-$QRENCODE_ARCH && chmod +x ${WORK_DIR}/qrencode
+  if wget --no-check-certificate --tries=3 --timeout=30 -O ${WORK_DIR}/qrencode https://github.com/fscarmen/client_template/raw/main/qrencode-go/qrencode-go-linux-$QRENCODE_ARCH; then
+    chmod +x ${WORK_DIR}/qrencode
+    info "qrencode 下载成功！"
+  else
+    warning "qrencode 下载失败"
+  fi
 
   # 下载 cloudflared
   echo "正在下载 cloudflared ..."
-  wget -O ${WORK_DIR}/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$ARGO_ARCH && chmod +x ${WORK_DIR}/cloudflared
+  if wget --no-check-certificate --tries=3 --timeout=30 -O ${WORK_DIR}/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$ARGO_ARCH; then
+    chmod +x ${WORK_DIR}/cloudflared
+    info "cloudflared 下载成功！"
+  else
+    warning "cloudflared 下载失败"
+  fi
 
   # 检查系统是否已经安装 tcp-brutal
   IS_BRUTAL=false && [ -x "$(type -p lsmod)" ] && lsmod | grep -q brutal && IS_BRUTAL=true
@@ -691,26 +733,50 @@ EOF
   fi
 
   # 生成 supervisord 配置文件
-  mkdir -p /etc/supervisor.d
+  mkdir -p /etc/supervisord.d
   SUPERVISORD_CONF="[supervisord]
 user=root
 nodaemon=true
-logfile=/dev/null
-pidfile=/run/supervisord.pid
+logfile=/var/log/supervisord.log
+pidfile=/var/run/supervisord.pid
+childlogdir=/var/log/supervisor
+
+[unix_http_server]
+file=/var/run/supervisor.sock
+
+[supervisorctl]
+serverurl=unix:///var/run/supervisor.sock
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[include]
+files = /etc/supervisord.d/*.ini
 
 [program:nginx]
 command=/usr/sbin/nginx -g 'daemon off;'
 autostart=true
 autorestart=true
-stderr_logfile=/dev/null
-stdout_logfile=/dev/null
+stderr_logfile=/var/log/supervisor/nginx_stderr.log
+stdout_logfile=/var/log/supervisor/nginx_stdout.log
+user=root
+priority=100
 
 [program:sing-box]
 command=${WORK_DIR}/sing-box run -C ${WORK_DIR}/conf/
 autostart=true
 autorestart=true
-stderr_logfile=/dev/null
-stdout_logfile=/dev/null"
+stderr_logfile=/var/log/supervisor/sing-box_stderr.log
+stdout_logfile=/var/log/supervisor/sing-box_stdout.log
+user=root
+priority=200
+environment=PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\""
+
+  # 检查 sing-box 配置文件是否存在
+  if [ ! -f "${WORK_DIR}/sing-box" ]; then
+    warning "sing-box 可执行文件不存在，请检查下载是否成功"
+    exit 1
+  fi
 
 [ -z "$METRICS_PORT" ] && SUPERVISORD_CONF+="
 
@@ -718,11 +784,18 @@ stdout_logfile=/dev/null"
 command=${WORK_DIR}/$ARGO_RUNS
 autostart=true
 autorestart=true
-stderr_logfile=/dev/null
-stdout_logfile=/dev/null
+stderr_logfile=/var/log/supervisor/argo_stderr.log
+stdout_logfile=/var/log/supervisor/argo_stdout.log
+user=root
+priority=300
 "
 
-  echo "$SUPERVISORD_CONF" > /etc/supervisor.d/daemon.ini
+  # 创建必要的目录
+  mkdir -p /var/log/supervisor /var/run
+  
+  # 写入配置文件
+  echo "$SUPERVISORD_CONF" > /etc/supervisord.conf
+  info "supervisord 配置文件已生成"
 
   # 如使用临时隧道，先运行 cloudflared 以获取临时隧道域名
   if [ -n "$METRICS_PORT" ]; then
@@ -1299,19 +1372,63 @@ $(${WORK_DIR}/qrencode https://${ARGO_DOMAIN}/${UUID}/auto)
 # Sing-box 的最新版本
 update_sing-box() {
   local ONLINE=$(check_latest_sing-box)
-  local LOCAL=$(${WORK_DIR}/sing-box version | awk '/version/{print $NF}')
-  if [ -n "$ONLINE" ]; then
-    if [[ "$ONLINE" != "$LOCAL" ]]; then
-      wget https://github.com/SagerNet/sing-box/releases/download/v$ONLINE/sing-box-$ONLINE-linux-$SING_BOX_ARCH.tar.gz -O- | tar xz -C ${WORK_DIR} sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box &&
-      mv ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box ${WORK_DIR}/sing-box &&
-      rm -rf ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH &&
-      supervisorctl restart sing-box
-      info " Sing-box v${ONLINE} 更新成功！"
+  
+  # 检查是否能获取到版本信息
+  if [ -z "$ONLINE" ]; then
+    warning "获取不了在线版本，请稍后再试！"
+    return 1
+  fi
+  
+  # 检查当前版本
+  local LOCAL=""
+  if [ -f "${WORK_DIR}/sing-box" ]; then
+    LOCAL=$(${WORK_DIR}/sing-box version 2>/dev/null | awk '/version/{print $NF}')
+  fi
+  
+  info "本地版本: ${LOCAL:-'未安装'}, 在线版本: v${ONLINE}"
+  
+  if [[ "$ONLINE" != "$LOCAL" ]]; then
+    info "开始更新 sing-box 到版本 v${ONLINE}..."
+    
+    # 停止当前服务
+    supervisorctl stop sing-box >/dev/null 2>&1 || true
+    
+    # 备份当前版本
+    [ -f "${WORK_DIR}/sing-box" ] && cp "${WORK_DIR}/sing-box" "${WORK_DIR}/sing-box.bak"
+    
+    # 下载新版本
+    if wget --no-check-certificate --tries=3 --timeout=30 https://github.com/SagerNet/sing-box/releases/download/v$ONLINE/sing-box-$ONLINE-linux-$SING_BOX_ARCH.tar.gz -O- | tar xz -C ${WORK_DIR} sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box; then
+      mv ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box ${WORK_DIR}/sing-box
+      rm -rf ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH
+      chmod +x ${WORK_DIR}/sing-box
+      
+      # 验证新版本
+      if ${WORK_DIR}/sing-box version >/dev/null 2>&1; then
+        # 重启服务
+        supervisorctl start sing-box
+        sleep 2
+        
+        # 检查服务状态
+        if supervisorctl status sing-box | grep -q "RUNNING"; then
+          rm -f "${WORK_DIR}/sing-box.bak" 2>/dev/null || true
+          info "Sing-box v${ONLINE} 更新成功！"
+        else
+          warning "新版本启动失败，正在恢复旧版本..."
+          [ -f "${WORK_DIR}/sing-box.bak" ] && mv "${WORK_DIR}/sing-box.bak" "${WORK_DIR}/sing-box"
+          supervisorctl start sing-box
+        fi
+      else
+        warning "新版本验证失败，正在恢复旧版本..."
+        [ -f "${WORK_DIR}/sing-box.bak" ] && mv "${WORK_DIR}/sing-box.bak" "${WORK_DIR}/sing-box"
+        supervisorctl start sing-box
+      fi
     else
-      info " Sing-box v${ONLINE} 已是最新版本！"
+      warning "下载新版本失败！"
+      [ -f "${WORK_DIR}/sing-box.bak" ] && rm -f "${WORK_DIR}/sing-box.bak"
+      supervisorctl start sing-box
     fi
   else
-    warning " 获取不了在线版本，请稍后再试！"
+    info "Sing-box v${ONLINE} 已是最新版本！"
   fi
 }
 
@@ -1329,6 +1446,21 @@ case "$ACTION" in
     ;;
   * )
     install
+    
+    # 验证配置文件是否生成成功
+    if [ ! -f "/etc/supervisord.conf" ]; then
+      warning "supervisord 配置文件不存在，安装失败"
+      exit 1
+    fi
+    
+    # 验证 sing-box 配置文件
+    if [ ! -d "${WORK_DIR}/conf" ] || [ -z "$(ls -A ${WORK_DIR}/conf 2>/dev/null)" ]; then
+      warning "sing-box 配置文件目录为空，请检查安装过程"
+      exit 1
+    fi
+    
+    info "正在启动 supervisord..."
+    
     # 运行 supervisor 进程守护
-    supervisord -c /etc/supervisord.conf
+    exec supervisord -c /etc/supervisord.conf
 esac
