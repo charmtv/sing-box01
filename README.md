@@ -2,7 +2,7 @@
 
 # 🌟 【米粒儿 Sing-box 全家桶】 🌟
 
-[![GitHub Stars](https://img.shields.io/github/stars/milier-rice/sing-box-family?style=flat-square&logo=github&color=yellow)](https://github.com/milier-rice/sing-box-family)
+[![GitHub Stars](https://img.shields.io/github/stars/charmtv/sing-box01?style=flat-square&logo=github&color=yellow)](https://github.com/charmtv/sing-box01)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![TG Group](https://img.shields.io/badge/Telegram-Join_Group-blue?style=flat-square&logo=telegram)](https://t.me/mlkjfx6)
 [![YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?style=flat-square&logo=youtube)](https://youtube.com/@米粒儿813)
@@ -204,7 +204,7 @@
 
 #### 🎯 **首次运行**
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/milier-rice/sing-box-family/main/sing-box.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/charmtv/sing-box01/main/sing-box.sh)
 ```
 
 </td>
@@ -259,7 +259,7 @@ sb
 #### 📄 **方式1：配置文件**
 > 使用 KV 配置文件，参照本库 `config.conf`
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/milier-rice/sing-box-family/main/sing-box.sh) -f config.conf
+bash <(wget -qO- https://raw.githubusercontent.com/charmtv/sing-box01/main/sing-box.sh) -f config.conf
 ```
 
 </td>
@@ -268,7 +268,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/milier-rice/sing-box-family/m
 #### 🔧 **方式2：命令传参**
 > 直接在命令行传递参数
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/milier-rice/sing-box-family/main/sing-box.sh) --LANGUAGE c --CHOOSE_PROTOCOLS a
+bash <(wget -qO- https://raw.githubusercontent.com/charmtv/sing-box01/main/sing-box.sh) --LANGUAGE c --CHOOSE_PROTOCOLS a
 ```
 
 </td>
@@ -576,7 +576,7 @@ docker run -dit \
     -e NODE_NAME=米粒儿节点 \
     -e ARGO_DOMAIN=sb.argo.com \
     -e ARGO_AUTH='{"AccountTag":"9cc9e3e4d8f29d2a02e297f14f20513a","TunnelSecret":"6AYfKBOoNlPiTAuWg64ZwujsNuERpWLm6pPJ2qpN8PM=","TunnelID":"1ac55430-f4dc-47d5-a850-bdce824c4101"}' \
-    milier/sing-box-family
+    charmtv/sing-box01
 ```
 </details>
 
@@ -595,7 +595,7 @@ networks:
 
 services:
   milier-sing-box:
-    image: milier/sing-box-family:latest
+    image: charmtv/sing-box01:latest
     pull_policy: always
     container_name: milier-sing-box
     restart: always
@@ -657,7 +657,7 @@ services:
 | 📈 **资源监控** | `docker stats milier-sing-box` | 查看 CPU、内存、网络使用情况 |
 | ⏸️ **暂停容器** | **Docker**: `docker stop milier-sing-box`<br/>**Compose**: `docker-compose stop` | 暂停容器运行 |
 | 🗑️ **删除容器** | **Docker**: `docker rm -f milier-sing-box`<br/>**Compose**: `docker-compose down` | 停止并删除容器 |
-| 🧹 **清理镜像** | `docker rmi -f milier/sing-box-family:latest` | 删除镜像文件 |
+| 🧹 **清理镜像** | `docker rmi -f charmtv/sing-box01:latest` | 删除镜像文件 |
 
 
 ### 用户可以通过 Cloudflare Json 生成网轻松获取: https://fscarmen.cloudflare.now.cc
@@ -828,26 +828,99 @@ services:
 
 ## 💝 **赞助支持**
 
-### 🚀 Sponsored by SharonNetworks
+### 🎯 **米粒儿 VPS 交流群**
 
-<a href="https://sharon.io/">
-  <img src="https://framerusercontent.com/assets/3bMljdaUFNDFvMzdG9S0NjYmhSY.png" width="30%" alt="sharon.io">
-</a>
+[![TG Group](https://img.shields.io/badge/💬_Telegram_群组-@mlkjfx6-blue?style=for-the-badge&logo=telegram)](https://t.me/mlkjfx6)
+[![YouTube](https://img.shields.io/badge/🎥_YouTube_频道-@米粒儿813-red?style=for-the-badge&logo=youtube)](https://youtube.com/@米粒儿813)
+[![Blog](https://img.shields.io/badge/📝_米粒博客-ooovps.com-green?style=for-the-badge)](https://ooovps.com)
 
-本项目的构建与发布环境由 SharonNetworks 提供支持 —— 专注亚太顶级回国优化线路，高带宽、低延迟直连中国大陆，内置强大高防 DDoS 清洗能力。
+**📱 188 个成员，活跃交流中！**
 
-SharonNetworks 为您的业务起飞保驾护航！
+> 🌟 **专注内容**：白嫖VPS | 拼车服务 | 技术交流 | 中介服务
 
-#### ✨ 服务优势
+### 🎁 **支持方式**
 
-* 亚太三网回程优化直连中国大陆，下载快到飞起
-* 超大带宽 + 抗攻击清洗服务，保障业务安全稳定
-* 多节点覆盖（香港、新加坡、日本、台湾、韩国）
-* 高防护力、高速网络；港/日/新 CDN 即将上线
+<table>
+<tr>
+<td width="50%">
 
-想体验同款构建环境？欢迎 [访问 Sharon 官网](https://sharon.io) 或 [加入 Telegram 群组](https://t.me/SharonNetwork) 了解更多并申请赞助。
+#### 💰 **资金支持**
+- 🎯 赞助米粒儿继续开发
+- 🚀 提升服务器性能
+- 🔧 优化用户体验
+- 📚 制作更多教程
+
+</td>
+<td width="50%">
+
+#### 🤝 **参与贡献**
+- 🐛 提交 Issues 反馈
+- 💡 提出功能建议  
+- 🔧 贡献代码优化
+- 📢 帮助推广项目
+
+</td>
+</tr>
+</table>
+
+ [访问  官网](https://sharon.io) 或 [加入 Telegram 群组](https://t.me/Network) 了解更多并申请赞助。
 
 
-## 12.免责声明:
-* 本程序仅供学习了解, 非盈利目的，请于下载后 24 小时内删除, 不得用作任何商业用途, 文字、数据及图片均有所属版权, 如转载须注明来源。
-* 使用本程序必循遵守部署免责声明。使用本程序必循遵守部署服务器所在地、所在国家和用户所在国家的法律法规, 程序作者不对使用者任何不当行为负责。
+---
+
+## ⚖️ **免责声明**
+
+<div align="center">
+
+### ⚠️ **重要提示 · 请仔细阅读 · 使用即代表同意**
+
+</div>
+
+### 📋 **使用条款**
+
+<table>
+<tr>
+<td width="50%">
+
+#### 🎓 **学习用途**
+- ✅ 仅供学习研究使用
+- ✅ 非盈利性质项目
+- ⏰ 24小时内删除体验版
+- ❌ 禁止商业用途使用
+
+</td>
+<td width="50%">
+
+#### 📜 **版权声明**
+- 📝 文字数据图片有版权
+- 🔗 转载请注明来源
+- 👨‍💻 作者：米粒儿
+- 🏠 项目归米粒儿所有
+
+</td>
+</tr>
+</table>
+
+### ⚖️ **法律责任**
+
+> **📍 重要提醒**：使用本程序必须遵守以下法律法规：
+> 
+> - 🌍 **部署服务器所在地**的法律法规
+> - 🏠 **程序作者所在国家**的法律法规  
+> - 👤 **用户所在国家地区**的法律法规
+>
+> **⚠️ 免责条款**：程序作者米粒儿不对使用者任何不当行为负责
+
+---
+
+<div align="center">
+
+### 💝 **感谢使用米粒儿 Sing-box 全家桶！**
+
+**🎯 项目地址**: [https://github.com/charmtv/sing-box01](https://github.com/charmtv/sing-box01)
+
+**👨‍💻 作者**: 米粒儿 | **📱 TG群**: [@https://t.me/mlkjfx6](https://t.me/mlkjfx6) | **🎥 YouTube**: [youtube.com/@米粒儿813](https://youtube.com/@米粒儿813)
+
+**⭐ 觉得好用请给个Star！⭐**
+
+</div>
