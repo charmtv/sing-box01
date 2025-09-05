@@ -7,8 +7,8 @@
 # 🎥 YouTube：youtube.com/@米粒儿813  
 # 📝 博客：https://ooovps.com
 #
-# 🗓️ 最后更新：2025.08.27
-# 📝 版本：v1.2.18
+# 🗓️ 最后更新：2025.01.27 (北京时间)
+# 📝 版本：v1.2.19
 # ═══════════════════════════════════════════════════════════════
 
 # 设置严格模式
@@ -29,6 +29,131 @@ error_exit() {
     exit 1
 }
 
+# IP地址自动检测函数
+detect_server_ip() {
+    info "🔍 正在自动检测服务器IP地址..."
+    
+    local detected_ipv4=""
+    local detected_ipv6=""
+    local final_ip=""
+    
+    # 方法1: 使用多个IP检测服务
+    local ip_services=(
+        "http://api-ipv4.ip.sb"
+        "http://ipv4.icanhazip.com"
+        "http://ipinfo.io/ip"
+        "http://ifconfig.me/ip"
+        "http://ipecho.net/plain"
+        "http://ident.me"
+        "http://whatismyip.akamai.com"
+    )
+    
+    # 检测IPv4
+    for service in "${ip_services[@]}"; do
+        info "尝试从 $service 获取IPv4地址..."
+        detected_ipv4=$(wget --no-check-certificate --tries=1 --timeout=5 -qO- "$service" 2>/dev/null | tr -d '\n\r' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$')
+        if [ -n "$detected_ipv4" ]; then
+            info "✅ 检测到IPv4地址: $detected_ipv4"
+            break
+        fi
+    done
+    
+    # 检测IPv6
+    local ipv6_services=(
+        "http://api-ipv6.ip.sb"
+        "http://ipv6.icanhazip.com"
+        "http://v6.ident.me"
+    )
+    
+    for service in "${ipv6_services[@]}"; do
+        info "尝试从 $service 获取IPv6地址..."
+        detected_ipv6=$(wget --no-check-certificate --tries=1 --timeout=5 -qO- "$service" 2>/dev/null | tr -d '\n\r' | grep -E '^[0-9a-fA-F:]+$')
+        if [ -n "$detected_ipv6" ]; then
+            info "✅ 检测到IPv6地址: $detected_ipv6"
+            break
+        fi
+    done
+    
+    # 方法2: 从网络接口获取
+    if [ -z "$detected_ipv4" ] && [ -z "$detected_ipv6" ]; then
+        info "尝试从网络接口获取IP地址..."
+        
+        # 获取默认网络接口
+        local default_interface=$(ip route | grep default | head -1 | awk '{print $5}')
+        if [ -n "$default_interface" ]; then
+            info "默认网络接口: $default_interface"
+            
+            # 从接口获取IPv4
+            detected_ipv4=$(ip -4 addr show "$default_interface" | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
+            if [ -n "$detected_ipv4" ]; then
+                info "✅ 从接口获取IPv4: $detected_ipv4"
+            fi
+            
+            # 从接口获取IPv6
+            detected_ipv6=$(ip -6 addr show "$default_interface" | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+' | grep -v '^::1$' | grep -v '^fe80:' | head -1)
+            if [ -n "$detected_ipv6" ]; then
+                info "✅ 从接口获取IPv6: $detected_ipv6"
+            fi
+        fi
+    fi
+    
+    # 方法3: 使用hostname命令
+    if [ -z "$detected_ipv4" ] && [ -z "$detected_ipv6" ]; then
+        info "尝试使用hostname命令获取IP地址..."
+        local hostname_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+        if [ -n "$hostname_ip" ]; then
+            if [[ "$hostname_ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+                detected_ipv4="$hostname_ip"
+                info "✅ 从hostname获取IPv4: $detected_ipv4"
+            elif [[ "$hostname_ip" =~ ^[0-9a-fA-F:]+$ ]]; then
+                detected_ipv6="$hostname_ip"
+                info "✅ 从hostname获取IPv6: $detected_ipv6"
+            fi
+        fi
+    fi
+    
+    # 选择最终IP地址
+    if [ -n "$detected_ipv4" ]; then
+        final_ip="$detected_ipv4"
+        info "🎯 选择IPv4地址: $final_ip"
+    elif [ -n "$detected_ipv6" ]; then
+        final_ip="$detected_ipv6"
+        info "🎯 选择IPv6地址: $final_ip"
+    else
+        warning "❌ 无法自动检测到服务器IP地址"
+        return 1
+    fi
+    
+    # 验证IP地址格式
+    if [[ "$final_ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        # IPv4格式验证
+        local valid_ipv4=true
+        IFS='.' read -ra ADDR <<< "$final_ip"
+        for i in "${ADDR[@]}"; do
+            if [ "$i" -gt 255 ] || [ "$i" -lt 0 ]; then
+                valid_ipv4=false
+                break
+            fi
+        done
+        if [ "$valid_ipv4" = true ]; then
+            info "✅ IPv4地址格式验证通过"
+        else
+            warning "❌ IPv4地址格式无效"
+            return 1
+        fi
+    elif [[ "$final_ip" =~ ^[0-9a-fA-F:]+$ ]]; then
+        info "✅ IPv6地址格式验证通过"
+    else
+        warning "❌ IP地址格式无效"
+        return 1
+    fi
+    
+    # 设置SERVER_IP环境变量
+    export SERVER_IP="$final_ip"
+    info "🎉 服务器IP地址已自动设置为: $SERVER_IP"
+    return 0
+}
+
 # 配置验证函数
 validate_config() {
     local errors=0
@@ -39,9 +164,17 @@ validate_config() {
         errors=$((errors + 1))
     fi
     
+    # 检查SERVER_IP，如果未设置则自动检测
     if [ -z "${SERVER_IP:-}" ]; then
-        warning "SERVER_IP 未设置"
-        errors=$((errors + 1))
+        warning "SERVER_IP 未设置，尝试自动检测..."
+        if detect_server_ip; then
+            info "✅ 服务器IP地址自动检测成功"
+        else
+            warning "❌ 服务器IP地址自动检测失败"
+            errors=$((errors + 1))
+        fi
+    else
+        info "✅ 使用预设的SERVER_IP: $SERVER_IP"
     fi
     
     # 验证端口范围
@@ -151,29 +284,101 @@ install() {
 
   # 下载 jq
   info "正在下载 jq ..."
-  if wget --no-check-certificate --tries=3 --timeout=30 -O ${WORK_DIR}/jq https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-$JQ_ARCH; then
-    chmod +x ${WORK_DIR}/jq
-    info "✅ jq 下载成功！"
-  else
+  local jq_urls=(
+    "https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-$JQ_ARCH"
+    "https://cdn.jsdelivr.net/gh/jqlang/jq@jq-1.7.1/jq-linux-$JQ_ARCH"
+    "https://github.com/charmtv/sing-box01/raw/main/tools/jq-linux-$JQ_ARCH"
+  )
+  
+  local jq_downloaded=false
+  for url in "${jq_urls[@]}"; do
+    info "尝试从 $url 下载 jq..."
+    if wget --no-check-certificate --tries=2 --timeout=15 -O ${WORK_DIR}/jq "$url"; then
+      chmod +x ${WORK_DIR}/jq
+      if ${WORK_DIR}/jq --version >/dev/null 2>&1; then
+        info "✅ jq 下载成功！"
+        jq_downloaded=true
+        break
+      else
+        warning "下载的文件无效，尝试下一个源..."
+        rm -f ${WORK_DIR}/jq
+      fi
+    fi
+  done
+  
+  if [ "$jq_downloaded" = false ]; then
     warning "⚠️ jq 下载失败，将跳过相关功能"
+    # 创建一个假的jq文件，避免后续错误
+    echo '#!/bin/bash
+echo "jq not available"
+exit 1' > ${WORK_DIR}/jq
+    chmod +x ${WORK_DIR}/jq
   fi
 
   # 下载 qrencode
   info "正在下载 qrencode ..."
-  if wget --no-check-certificate --tries=3 --timeout=30 -O ${WORK_DIR}/qrencode https://github.com/fscarmen/client_template/raw/main/qrencode-go/qrencode-go-linux-$QRENCODE_ARCH; then
-    chmod +x ${WORK_DIR}/qrencode
-    info "✅ qrencode 下载成功！"
-  else
+  local qrencode_urls=(
+    "https://github.com/fscarmen/client_template/raw/main/qrencode-go/qrencode-go-linux-$QRENCODE_ARCH"
+    "https://github.com/charmtv/sing-box01/raw/main/tools/qrencode-go-linux-$QRENCODE_ARCH"
+    "https://cdn.jsdelivr.net/gh/fscarmen/client_template@main/qrencode-go/qrencode-go-linux-$QRENCODE_ARCH"
+  )
+  
+  local qrencode_downloaded=false
+  for url in "${qrencode_urls[@]}"; do
+    info "尝试从 $url 下载 qrencode..."
+    if wget --no-check-certificate --tries=2 --timeout=15 -O ${WORK_DIR}/qrencode "$url"; then
+      chmod +x ${WORK_DIR}/qrencode
+      if ${WORK_DIR}/qrencode --version >/dev/null 2>&1; then
+        info "✅ qrencode 下载成功！"
+        qrencode_downloaded=true
+        break
+      else
+        warning "下载的文件无效，尝试下一个源..."
+        rm -f ${WORK_DIR}/qrencode
+      fi
+    fi
+  done
+  
+  if [ "$qrencode_downloaded" = false ]; then
     warning "⚠️ qrencode 下载失败，将跳过二维码生成功能"
+    # 创建一个假的qrencode文件，避免后续错误
+    echo '#!/bin/bash
+echo "qrencode not available"
+exit 1' > ${WORK_DIR}/qrencode
+    chmod +x ${WORK_DIR}/qrencode
   fi
 
   # 下载 cloudflared
   info "正在下载 cloudflared ..."
-  if wget --no-check-certificate --tries=3 --timeout=30 -O ${WORK_DIR}/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$ARGO_ARCH; then
-    chmod +x ${WORK_DIR}/cloudflared
-    info "✅ cloudflared 下载成功！"
-  else
+  local cloudflared_urls=(
+    "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$ARGO_ARCH"
+    "https://cdn.jsdelivr.net/gh/cloudflare/cloudflared@latest/cloudflared-linux-$ARGO_ARCH"
+    "https://github.com/charmtv/sing-box01/raw/main/tools/cloudflared-linux-$ARGO_ARCH"
+  )
+  
+  local cloudflared_downloaded=false
+  for url in "${cloudflared_urls[@]}"; do
+    info "尝试从 $url 下载 cloudflared..."
+    if wget --no-check-certificate --tries=2 --timeout=15 -O ${WORK_DIR}/cloudflared "$url"; then
+      chmod +x ${WORK_DIR}/cloudflared
+      if ${WORK_DIR}/cloudflared version >/dev/null 2>&1; then
+        info "✅ cloudflared 下载成功！"
+        cloudflared_downloaded=true
+        break
+      else
+        warning "下载的文件无效，尝试下一个源..."
+        rm -f ${WORK_DIR}/cloudflared
+      fi
+    fi
+  done
+  
+  if [ "$cloudflared_downloaded" = false ]; then
     warning "⚠️ cloudflared 下载失败，Argo 隧道功能将不可用"
+    # 创建一个假的cloudflared文件，避免后续错误
+    echo '#!/bin/bash
+echo "cloudflared not available"
+exit 1' > ${WORK_DIR}/cloudflared
+    chmod +x ${WORK_DIR}/cloudflared
   fi
 
   # 检查系统是否已经安装 tcp-brutal

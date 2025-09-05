@@ -16,21 +16,156 @@ warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
 info() { echo -e "\033[32m\033[01m$*\033[0m"; }   # 绿色
 hint() { echo -e "\033[33m\033[01m$*\033[0m"; }   # 黄色
 
+# IP地址自动检测函数
+detect_server_ip() {
+    info "🔍 正在自动检测服务器IP地址..."
+    
+    local detected_ipv4=""
+    local detected_ipv6=""
+    local final_ip=""
+    
+    # 方法1: 使用多个IP检测服务
+    local ip_services=(
+        "http://api-ipv4.ip.sb"
+        "http://ipv4.icanhazip.com"
+        "http://ipinfo.io/ip"
+        "http://ifconfig.me/ip"
+        "http://ipecho.net/plain"
+        "http://ident.me"
+        "http://whatismyip.akamai.com"
+    )
+    
+    # 检测IPv4
+    for service in "${ip_services[@]}"; do
+        info "尝试从 $service 获取IPv4地址..."
+        detected_ipv4=$(wget --no-check-certificate --tries=1 --timeout=5 -qO- "$service" 2>/dev/null | tr -d '\n\r' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$')
+        if [ -n "$detected_ipv4" ]; then
+            info "✅ 检测到IPv4地址: $detected_ipv4"
+            break
+        fi
+    done
+    
+    # 检测IPv6
+    local ipv6_services=(
+        "http://api-ipv6.ip.sb"
+        "http://ipv6.icanhazip.com"
+        "http://v6.ident.me"
+    )
+    
+    for service in "${ipv6_services[@]}"; do
+        info "尝试从 $service 获取IPv6地址..."
+        detected_ipv6=$(wget --no-check-certificate --tries=1 --timeout=5 -qO- "$service" 2>/dev/null | tr -d '\n\r' | grep -E '^[0-9a-fA-F:]+$')
+        if [ -n "$detected_ipv6" ]; then
+            info "✅ 检测到IPv6地址: $detected_ipv6"
+            break
+        fi
+    done
+    
+    # 方法2: 从网络接口获取
+    if [ -z "$detected_ipv4" ] && [ -z "$detected_ipv6" ]; then
+        info "尝试从网络接口获取IP地址..."
+        
+        # 获取默认网络接口
+        local default_interface=$(ip route | grep default | head -1 | awk '{print $5}')
+        if [ -n "$default_interface" ]; then
+            info "默认网络接口: $default_interface"
+            
+            # 从接口获取IPv4
+            detected_ipv4=$(ip -4 addr show "$default_interface" | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
+            if [ -n "$detected_ipv4" ]; then
+                info "✅ 从接口获取IPv4: $detected_ipv4"
+            fi
+            
+            # 从接口获取IPv6
+            detected_ipv6=$(ip -6 addr show "$default_interface" | grep -oP '(?<=inet6\s)[0-9a-fA-F:]+' | grep -v '^::1$' | grep -v '^fe80:' | head -1)
+            if [ -n "$detected_ipv6" ]; then
+                info "✅ 从接口获取IPv6: $detected_ipv6"
+            fi
+        fi
+    fi
+    
+    # 方法3: 使用hostname命令
+    if [ -z "$detected_ipv4" ] && [ -z "$detected_ipv6" ]; then
+        info "尝试使用hostname命令获取IP地址..."
+        local hostname_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+        if [ -n "$hostname_ip" ]; then
+            if [[ "$hostname_ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+                detected_ipv4="$hostname_ip"
+                info "✅ 从hostname获取IPv4: $detected_ipv4"
+            elif [[ "$hostname_ip" =~ ^[0-9a-fA-F:]+$ ]]; then
+                detected_ipv6="$hostname_ip"
+                info "✅ 从hostname获取IPv6: $detected_ipv6"
+            fi
+        fi
+    fi
+    
+    # 选择最终IP地址
+    if [ -n "$detected_ipv4" ]; then
+        final_ip="$detected_ipv4"
+        info "🎯 选择IPv4地址: $final_ip"
+    elif [ -n "$detected_ipv6" ]; then
+        final_ip="$detected_ipv6"
+        info "🎯 选择IPv6地址: $final_ip"
+    else
+        warning "❌ 无法自动检测到服务器IP地址"
+        return 1
+    fi
+    
+    # 验证IP地址格式
+    if [[ "$final_ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        # IPv4格式验证
+        local valid_ipv4=true
+        IFS='.' read -ra ADDR <<< "$final_ip"
+        for i in "${ADDR[@]}"; do
+            if [ "$i" -gt 255 ] || [ "$i" -lt 0 ]; then
+                valid_ipv4=false
+                break
+            fi
+        done
+        if [ "$valid_ipv4" = true ]; then
+            info "✅ IPv4地址格式验证通过"
+        else
+            warning "❌ IPv4地址格式无效"
+            return 1
+        fi
+    elif [[ "$final_ip" =~ ^[0-9a-fA-F:]+$ ]]; then
+        info "✅ IPv6地址格式验证通过"
+    else
+        warning "❌ IP地址格式无效"
+        return 1
+    fi
+    
+    # 设置SERVER_IP环境变量
+    export SERVER_IP="$final_ip"
+    info "🎉 服务器IP地址已自动设置为: $SERVER_IP"
+    return 0
+}
+
 # 验证环境配置
 validate_environment() {
     echo "🔍 验证环境配置..."
     local errors=0
     
     # 检查必需的环境变量
-    local required_vars=("START_PORT" "SERVER_IP")
-    for var in "${required_vars[@]}"; do
-        if [ -z "${!var:-}" ]; then
-            warning "❌ 错误: $var 未设置"
-            errors=$((errors + 1))
+    if [ -z "${START_PORT:-}" ]; then
+        warning "❌ 错误: START_PORT 未设置"
+        errors=$((errors + 1))
+    else
+        info "✅ START_PORT: ${START_PORT}"
+    fi
+    
+    # 检查SERVER_IP，如果未设置则自动检测
+    if [ -z "${SERVER_IP:-}" ]; then
+        warning "⚠️ SERVER_IP 未设置，尝试自动检测..."
+        if detect_server_ip; then
+            info "✅ 服务器IP地址自动检测成功: $SERVER_IP"
         else
-            info "✅ $var: ${!var}"
+            warning "❌ 服务器IP地址自动检测失败"
+            errors=$((errors + 1))
         fi
-    done
+    else
+        info "✅ 使用预设的SERVER_IP: $SERVER_IP"
+    fi
     
     # 验证端口范围
     if [ -n "${START_PORT:-}" ]; then

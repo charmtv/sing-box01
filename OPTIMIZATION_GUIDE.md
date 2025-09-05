@@ -198,6 +198,7 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" alway
 - 检查网络连接
 - 验证系统资源
 - 检查 Docker 环境
+- **🆕 自动IP地址检测**
 
 ### 2. 健康检查脚本 (`health_check.sh`)
 - 检查服务状态
@@ -212,6 +213,20 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" alway
 - 自动清理测试环境
 - 集成健康检查
 - 更好的日志输出
+- **🆕 自动IP地址检测**
+
+### 4. IP地址检测脚本 (`detect_ip.sh`)
+- 多方法IP地址检测
+- 支持IPv4和IPv6
+- 网络服务检测
+- 网络接口检测
+- IP地址信息查询
+
+### 5. IP地址修复脚本 (`fix_ip_detection.sh`)
+- 全面IP地址检测
+- 连通性测试
+- 配置建议生成
+- 故障排除指导
 
 ## 📊 性能提升
 
@@ -234,13 +249,32 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" alway
 docker build -t milier-sing-box-optimized .
 ```
 
-### 2. 运行配置验证
+### 2. 自动检测服务器IP地址
 ```bash
+# 方法1: 使用专门的IP检测脚本
+./detect_ip.sh
+
+# 方法2: 使用IP修复脚本（推荐）
+./fix_ip_detection.sh
+
+# 方法3: 运行配置验证（包含IP检测）
 ./validate_config.sh
 ```
 
 ### 3. 启动容器
 ```bash
+# 自动检测IP地址后启动
+docker run -d \
+    --name milier-sing-box \
+    -p 8800-8820:8800-8820/tcp \
+    -p 8800-8820:8800-8820/udp \
+    -e START_PORT=8800 \
+    -e SERVER_IP=$(./detect_ip.sh) \
+    -e XTLS_REALITY=true \
+    -e HYSTERIA2=true \
+    milier-sing-box-optimized
+
+# 或者手动指定IP地址
 docker run -d \
     --name milier-sing-box \
     -p 8800-8820:8800-8820/tcp \
@@ -260,6 +294,12 @@ docker exec milier-sing-box /sing-box/health_check.sh
 ### 5. 运行测试
 ```bash
 ./test_docker.sh
+```
+
+### 6. 修复IP地址识别问题
+```bash
+# 如果遇到IP地址识别问题，运行修复脚本
+./fix_ip_detection.sh
 ```
 
 ## 🔍 监控和维护

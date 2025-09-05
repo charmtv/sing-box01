@@ -49,10 +49,59 @@ check_docker() {
     info "✅ Docker 环境检查通过"
 }
 
+# 自动检测服务器IP地址
+detect_server_ip() {
+    info "🔍 自动检测服务器IP地址..."
+    
+    # 尝试多个IP检测服务
+    local ip_services=(
+        "http://api-ipv4.ip.sb"
+        "http://ipv4.icanhazip.com"
+        "http://ipinfo.io/ip"
+        "http://ifconfig.me/ip"
+        "http://ipecho.net/plain"
+    )
+    
+    local detected_ip=""
+    for service in "${ip_services[@]}"; do
+        hint "尝试从 $service 获取IP地址..."
+        detected_ip=$(wget --no-check-certificate --tries=1 --timeout=5 -qO- "$service" 2>/dev/null | tr -d '\n\r' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$')
+        if [ -n "$detected_ip" ]; then
+            success "✅ 检测到服务器IP地址: $detected_ip"
+            echo "$detected_ip"
+            return 0
+        fi
+    done
+    
+    # 如果网络服务都失败，尝试从网络接口获取
+    hint "尝试从网络接口获取IP地址..."
+    local default_interface=$(ip route | grep default | head -1 | awk '{print $5}' 2>/dev/null)
+    if [ -n "$default_interface" ]; then
+        detected_ip=$(ip -4 addr show "$default_interface" | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1)
+        if [ -n "$detected_ip" ]; then
+            success "✅ 从网络接口获取IP地址: $detected_ip"
+            echo "$detected_ip"
+            return 0
+        fi
+    fi
+    
+    warning "❌ 无法自动检测到服务器IP地址"
+    return 1
+}
+
 info "🧪 开始测试 Docker 容器..."
 
 # 检查 Docker 环境
 check_docker
+
+# 自动检测服务器IP地址
+info "🌐 检测服务器IP地址..."
+if SERVER_IP=$(detect_server_ip); then
+    info "🎯 使用检测到的服务器IP: $SERVER_IP"
+else
+    warning "⚠️ 无法自动检测IP地址，使用默认值 127.0.0.1"
+    SERVER_IP="127.0.0.1"
+fi
 
 # 构建镜像
 info "📦 构建 Docker 镜像..."
@@ -69,7 +118,7 @@ if docker run -d \
     -p 8800-8820:8800-8820/tcp \
     -p 8800-8820:8800-8820/udp \
     -e START_PORT=8800 \
-    -e SERVER_IP=127.0.0.1 \
+    -e SERVER_IP="$SERVER_IP" \
     -e XTLS_REALITY=true \
     -e HYSTERIA2=true \
     -e TUIC=true \
