@@ -10,6 +10,10 @@
 # 🗓️ 最后更新：2025.08.27
 # 📝 版本：v1.2.18
 # ═══════════════════════════════════════════════════════════════
+
+# 设置严格模式
+set -euo pipefail
+
 WORK_DIR=/sing-box
 PORT=$START_PORT
 SUBSCRIBE_TEMPLATE="https://raw.githubusercontent.com/charmtv/sing-box01/main/templates"
@@ -18,6 +22,67 @@ SUBSCRIBE_TEMPLATE="https://raw.githubusercontent.com/charmtv/sing-box01/main/te
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
 info() { echo -e "\033[32m\033[01m$*\033[0m"; }   # 绿色
 hint() { echo -e "\033[33m\033[01m$*\033[0m"; }   # 黄色
+
+# 错误处理函数
+error_exit() {
+    warning "错误: $1"
+    exit 1
+}
+
+# 配置验证函数
+validate_config() {
+    local errors=0
+    
+    # 验证必需的环境变量
+    if [ -z "${START_PORT:-}" ]; then
+        warning "START_PORT 未设置"
+        errors=$((errors + 1))
+    fi
+    
+    if [ -z "${SERVER_IP:-}" ]; then
+        warning "SERVER_IP 未设置"
+        errors=$((errors + 1))
+    fi
+    
+    # 验证端口范围
+    if ! [[ "${START_PORT:-}" =~ ^[0-9]+$ ]] || [ "${START_PORT:-}" -lt 100 ] || [ "${START_PORT:-}" -gt 65520 ]; then
+        warning "START_PORT 必须在 100-65520 范围内"
+        errors=$((errors + 1))
+    fi
+    
+    # 验证IP地址格式
+    if [ -n "${SERVER_IP:-}" ] && ! [[ "${SERVER_IP}" =~ ^[0-9a-fA-F:.]*$ ]]; then
+        warning "SERVER_IP 格式不正确"
+        errors=$((errors + 1))
+    fi
+    
+    if [ $errors -gt 0 ]; then
+        warning "配置验证失败，发现 $errors 个错误"
+        exit 1
+    fi
+    
+    info "✅ 配置验证通过"
+}
+
+# 下载重试函数
+download_with_retry() {
+    local url="$1"
+    local output="$2"
+    local max_retries=3
+    local retry_count=0
+    
+    while [ $retry_count -lt $max_retries ]; do
+        if wget --no-check-certificate --tries=1 --timeout=30 "$url" -O- | tar xz -C "${WORK_DIR}" "$output"; then
+            return 0
+        fi
+        retry_count=$((retry_count + 1))
+        warning "下载失败，重试 $retry_count/$max_retries..."
+        sleep 2
+    done
+    
+    warning "下载失败，已达到最大重试次数"
+    return 1
+}
 
 # 判断系统架构，以下载相应的应用
 case "$ARCH" in
@@ -60,8 +125,11 @@ check_latest_sing-box() {
 
 # 安装 sing-box 容器
 install() {
+  # 验证配置
+  validate_config
+  
   # 下载 sing-box
-  echo "正在下载 sing-box ..."
+  info "正在下载 sing-box ..."
   local ONLINE=$(check_latest_sing-box)
   
   # 检查版本号是否获取成功
@@ -70,43 +138,42 @@ install() {
     ONLINE="1.12.0-beta.15"
   fi
   
-  echo "下载 sing-box 版本: v$ONLINE"
+  info "下载 sing-box 版本: v$ONLINE"
   
-  # 下载并验证 sing-box
-  if wget --no-check-certificate --continue --tries=3 --timeout=30 https://github.com/SagerNet/sing-box/releases/download/v$ONLINE/sing-box-$ONLINE-linux-$SING_BOX_ARCH.tar.gz -O- | tar xz -C ${WORK_DIR} sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box; then
+  # 使用重试机制下载 sing-box
+  if download_with_retry "https://github.com/SagerNet/sing-box/releases/download/v$ONLINE/sing-box-$ONLINE-linux-$SING_BOX_ARCH.tar.gz" "sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box"; then
     mv ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box ${WORK_DIR}/sing-box && rm -rf ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH
     chmod +x ${WORK_DIR}/sing-box
-    info "sing-box 下载成功！"
+    info "✅ sing-box 下载成功！"
   else
-    warning "sing-box 下载失败，请检查网络连接"
-    exit 1
+    error_exit "sing-box 下载失败，请检查网络连接"
   fi
 
   # 下载 jq
-  echo "正在下载 jq ..."
+  info "正在下载 jq ..."
   if wget --no-check-certificate --tries=3 --timeout=30 -O ${WORK_DIR}/jq https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-$JQ_ARCH; then
     chmod +x ${WORK_DIR}/jq
-    info "jq 下载成功！"
+    info "✅ jq 下载成功！"
   else
-    warning "jq 下载失败"
+    warning "⚠️ jq 下载失败，将跳过相关功能"
   fi
 
   # 下载 qrencode
-  echo "正在下载 qrencode ..."
+  info "正在下载 qrencode ..."
   if wget --no-check-certificate --tries=3 --timeout=30 -O ${WORK_DIR}/qrencode https://github.com/fscarmen/client_template/raw/main/qrencode-go/qrencode-go-linux-$QRENCODE_ARCH; then
     chmod +x ${WORK_DIR}/qrencode
-    info "qrencode 下载成功！"
+    info "✅ qrencode 下载成功！"
   else
-    warning "qrencode 下载失败"
+    warning "⚠️ qrencode 下载失败，将跳过二维码生成功能"
   fi
 
   # 下载 cloudflared
-  echo "正在下载 cloudflared ..."
+  info "正在下载 cloudflared ..."
   if wget --no-check-certificate --tries=3 --timeout=30 -O ${WORK_DIR}/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$ARGO_ARCH; then
     chmod +x ${WORK_DIR}/cloudflared
-    info "cloudflared 下载成功！"
+    info "✅ cloudflared 下载成功！"
   else
-    warning "cloudflared 下载失败"
+    warning "⚠️ cloudflared 下载失败，Argo 隧道功能将不可用"
   fi
 
   # 检查系统是否已经安装 tcp-brutal
@@ -267,7 +334,19 @@ EOF
     "experimental": {
         "cache_file": {
             "enabled": true,
-            "path": "${WORK_DIR}/cache.db"
+            "path": "${WORK_DIR}/cache.db",
+            "cache_id": "sing-box-cache"
+        },
+        "clash_api": {
+            "external_controller": "127.0.0.1:9090",
+            "external_ui": "ui",
+            "secret": ""
+        },
+        "v2ray_api": {
+            "listen": "127.0.0.1:62789",
+            "stats": {
+                "enabled": true
+            }
         }
     }
 }
@@ -805,15 +884,18 @@ priority=300
   fi
 
   # 生成 nginx 配置文件
-  local NGINX_CONF="user root;
+  local NGINX_CONF="user singbox;
 
   worker_processes auto;
+  worker_cpu_affinity auto;
 
-  error_log  /dev/null;
+  error_log  /var/log/nginx/error.log warn;
   pid        /var/run/nginx.pid;
 
   events {
-      worker_connections  1024;
+      worker_connections  4096;
+      use epoll;
+      multi_accept on;
   }
 
   http {
@@ -834,14 +916,43 @@ priority=300
                         '\$status \$body_bytes_sent "\$http_referer" '
                         '"\$http_user_agent" "\$http_x_forwarded_for"';
 
-      access_log  /dev/null;
+      access_log  /var/log/nginx/access.log main;
 
       sendfile        on;
-      #tcp_nopush     on;
+      tcp_nopush     on;
+      tcp_nodelay    on;
 
       keepalive_timeout  65;
+      keepalive_requests 100;
 
-      #gzip  on;
+      # 启用 gzip 压缩
+      gzip on;
+      gzip_vary on;
+      gzip_min_length 1024;
+      gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+      # 启用缓存
+      open_file_cache max=1000 inactive=20s;
+      open_file_cache_valid 30s;
+      open_file_cache_min_uses 2;
+      open_file_cache_errors on;
+
+      # 优化缓冲区
+      client_body_buffer_size 128k;
+      client_header_buffer_size 1k;
+      large_client_header_buffers 4 4k;
+      output_buffers 1 32k;
+      postpone_output 1460;
+
+      # 隐藏 nginx 版本
+      server_tokens off;
+
+      # 限制请求大小
+      client_max_body_size 1M;
+
+      # 限制连接数
+      limit_conn_zone \$binary_remote_addr zone=conn_limit_per_ip:10m;
+      limit_conn conn_limit_per_ip 10;
 
       #include /etc/nginx/conf.d/*.conf;
 
@@ -852,10 +963,22 @@ priority=300
 
       ssl_certificate            ${WORK_DIR}/cert/cert.pem;
       ssl_certificate_key        ${WORK_DIR}/cert/private.key;
-      ssl_protocols              TLSv1.3;
+      ssl_protocols              TLSv1.2 TLSv1.3;
+      ssl_ciphers                ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384;
+      ssl_prefer_server_ciphers  on;
+      ssl_session_cache          shared:SSL:10m;
+      ssl_session_timeout        10m;
       ssl_session_tickets        on;
       ssl_stapling               off;
-      ssl_stapling_verify        off;"
+      ssl_stapling_verify        off;
+
+      # 安全头配置
+      add_header X-Frame-Options \"SAMEORIGIN\" always;
+      add_header X-Content-Type-Options \"nosniff\" always;
+      add_header X-XSS-Protection \"1; mode=block\" always;
+      add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;
+      add_header Content-Security-Policy \"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';\" always;
+      add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;"
 
   [ "${VLESS_WS}" = 'true' ] && NGINX_CONF+="
       # 反代 sing-box vless websocket

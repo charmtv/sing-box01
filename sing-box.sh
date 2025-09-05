@@ -17,7 +17,7 @@ PROTOCOL_LIST=("XTLS + reality" "hysteria2" "tuic" "ShadowTLS" "shadowsocks" "tr
 NODE_TAG=("xtls-reality" "hysteria2" "tuic" "ShadowTLS" "shadowsocks" "trojan" "vmess-ws" "vless-ws-tls" "h2-reality" "grpc-reality" "anytls")
 CONSECUTIVE_PORTS=${#PROTOCOL_LIST[@]}
 CDN_DOMAIN=("skk.moe" "ip.sb" "time.is" "cfip.xxxxxxxx.tk" "bestcf.top" "cdn.2020111.xyz" "xn--b6gac.eu.org")
-SUBSCRIBE_TEMPLATE="https://raw.githubusercontent.com/fscarmen/client_template/main"
+SUBSCRIBE_TEMPLATE="https://raw.githubusercontent.com/charmtv/sing-box01/main/templates"
 DEFAULT_NEWEST_VERSION='1.12.0-beta.15'
 
 export DEBIAN_FRONTEND=noninteractive
@@ -36,10 +36,10 @@ E[3]="Input errors up to 5 times.The script is aborted."
 C[3]="输入错误达5次,脚本退出"
 E[4]="UUID should be 36 characters, please re-enter \(\${UUID_ERROR_TIME} times remaining\):"
 C[4]="UUID 应为36位字符,请重新输入 \(剩余\${UUID_ERROR_TIME}次\):"
-E[5]="The script supports Debian, Ubuntu, CentOS, Alpine, Fedora or Arch systems only. Feedback: [https://github.com/fscarmen/sing-box/issues]"
-C[5]="本脚本只支持 Debian、Ubuntu、CentOS、Alpine、Fedora 或 Arch 系统,问题反馈:[https://github.com/fscarmen/sing-box/issues]"
-E[6]="Curren operating system is \$SYS.\\\n The system lower than \$SYSTEM \${MAJOR[int]} is not supported. Feedback: [https://github.com/fscarmen/sing-box/issues]"
-C[6]="当前操作是 \$SYS\\\n 不支持 \$SYSTEM \${MAJOR[int]} 以下系统,问题反馈:[https://github.com/fscarmen/sing-box/issues]"
+E[5]="The script supports Debian, Ubuntu, CentOS, Alpine, Fedora or Arch systems only. Feedback: [https://github.com/charmtv/sing-box01/issues]"
+C[5]="本脚本只支持 Debian、Ubuntu、CentOS、Alpine、Fedora 或 Arch 系统,问题反馈:[https://github.com/charmtv/sing-box01/issues]"
+E[6]="Curren operating system is \$SYS.\\\n The system lower than \$SYSTEM \${MAJOR[int]} is not supported. Feedback: [https://github.com/charmtv/sing-box01/issues]"
+C[6]="当前操作是 \$SYS\\\n 不支持 \$SYSTEM \${MAJOR[int]} 以下系统,问题反馈:[https://github.com/charmtv/sing-box01/issues]"
 E[7]="Install dependence-list:"
 C[7]="安装依赖列表:"
 E[8]="All dependencies already exist and do not need to be installed additionally."
@@ -76,8 +76,8 @@ E[23]="Virtualization"
 C[23]="虚拟化"
 E[24]="Choose:"
 C[24]="请选择:"
-E[25]="Curren architecture \$(uname -m) is not supported. Feedback: [https://github.com/fscarmen/sing-box/issues]"
-C[25]="当前架构 \$(uname -m) 暂不支持,问题反馈:[https://github.com/fscarmen/sing-box/issues]"
+E[25]="Curren architecture \$(uname -m) is not supported. Feedback: [https://github.com/charmtv/sing-box01/issues]"
+C[25]="当前架构 \$(uname -m) 暂不支持,问题反馈:[https://github.com/charmtv/sing-box01/issues]"
 E[26]="Not install"
 C[26]="未安装"
 E[27]="close"
@@ -110,20 +110,20 @@ E[40]="Sing-box local verion: \$LOCAL\\\t The newest verion: \$ONLINE"
 C[40]="Sing-box 本地版本: \$LOCAL\\\t 最新版本: \$ONLINE"
 E[41]="No upgrade required."
 C[41]="不需要升级"
-E[42]="Downloading the latest version Sing-box failed, script exits. Feedback:[https://github.com/fscarmen/sing-box/issues]"
-C[42]="下载最新版本 Sing-box 失败，脚本退出，问题反馈:[https://github.com/fscarmen/sing-box/issues]"
-E[43]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback:[https://github.com/fscarmen/sing-box/issues]"
-C[43]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/fscarmen/sing-box/issues]"
+E[42]="Downloading the latest version Sing-box failed, script exits. Feedback:[https://github.com/charmtv/sing-box01/issues]"
+C[42]="下载最新版本 Sing-box 失败，脚本退出，问题反馈:[https://github.com/charmtv/sing-box01/issues]"
+E[43]="The script must be run as root, you can enter sudo -i and then download and run again. Feedback:[https://github.com/charmtv/sing-box01/issues]"
+C[43]="必须以root方式运行脚本，可以输入 sudo -i 后重新下载运行，问题反馈:[https://github.com/charmtv/sing-box01/issues]"
 E[44]="Ports are in used:  \${IN_USED[*]}"
 C[44]="正在使用中的端口: \${IN_USED[*]}"
 E[45]="Ports used: \${NOW_START_PORT} - \$((NOW_START_PORT+NOW_CONSECUTIVE_PORTS-1))"
 C[45]="使用端口: \${NOW_START_PORT} - \$((NOW_START_PORT+NOW_CONSECUTIVE_PORTS-1))"
 E[46]="Warp / warp-go was detected to be running. Please enter the correct server IP:"
 C[46]="检测到 warp / warp-go 正在运行，请输入确认的服务器 IP:"
-E[47]="No server ip, script exits. Feedback:[https://github.com/fscarmen/sing-box/issues]"
-C[47]="没有 server ip，脚本退出，问题反馈:[https://github.com/fscarmen/sing-box/issues]"
-E[48]="ShadowTLS - Copy the above two Neko links and manually set up the chained proxies in order. Tutorial: https://github.com/fscarmen/sing-box/blob/main/README.md#sekobox-%E8%AE%BE%E7%BD%AE-shadowtls-%E6%96%B9%E6%B3%95"
-C[48]="ShadowTLS - 复制上面两条 Neko links 进去，并按顺序手动设置链式代理，详细教程: https://github.com/fscarmen/sing-box/blob/main/README.md#sekobox-%E8%AE%BE%E7%BD%AE-shadowtls-%E6%96%B9%E6%B3%95"
+E[47]="No server ip, script exits. Feedback:[https://github.com/charmtv/sing-box01/issues]"
+C[47]="没有 server ip，脚本退出，问题反馈:[https://github.com/charmtv/sing-box01/issues]"
+E[48]="ShadowTLS - Copy the above two Neko links and manually set up the chained proxies in order. Tutorial: https://github.com/charmtv/sing-box01/blob/main/README.md#sekobox-%E8%AE%BE%E7%BD%AE-shadowtls-%E6%96%B9%E6%B3%95"
+C[48]="ShadowTLS - 复制上面两条 Neko links 进去，并按顺序手动设置链式代理，详细教程: https://github.com/charmtv/sing-box01/blob/main/README.md#sekobox-%E8%AE%BE%E7%BD%AE-shadowtls-%E6%96%B9%E6%B3%95"
 E[49]="(1/6) Select more protocols to install (e.g. hgbd). The order of the port numbers of the protocols is related to the ordering of the multiple choices:\n a. all (default)"
 C[49]="(1/6) 多选需要安装协议(比如 hgbd)，协议的端口号次序与多选的排序有关:\n a. all (默认)"
 E[50]="Please enter the \$TYPE domain name:"
@@ -144,8 +144,8 @@ E[57]="Selecting the ws return method:\n 1. Argo (default)\n 2. Origin rules"
 C[57]="选择 ws 的回源方式:\n 1. Argo (默认)\n 2. Origin rules"
 E[58]="Memory Usage"
 C[58]="内存占用"
-E[59]="Install ArgoX scripts (argo + xray) [https://github.com/fscarmen/argox]"
-C[59]="安装 ArgoX 脚本 (argo + xray) [https://github.com/fscarmen/argox]"
+E[59]="Install ArgoX scripts (argo + xray) [https://github.com/charmtv/sing-box01]"
+C[59]="安装 ArgoX 脚本 (argo + xray) [https://github.com/charmtv/sing-box01]"
 E[60]="The order of the selected protocols and ports is as follows:"
 C[60]="选择的协议及端口次序如下:"
 E[61]="There are no replaceable Argo tunnels."
@@ -164,8 +164,8 @@ E[67]="(3/3) Confirm all protocols for reloading."
 C[67]="(3/3) 确认重装的所有协议"
 E[68]="Press [n] if there is an error, other keys to continue:"
 C[68]="如有错误请按 [n]，其他键继续:"
-E[69]="Install sba scripts (argo + sing-box) [https://github.com/fscarmen/sba]"
-C[69]="安装 sba 脚本 (argo + sing-box) [https://github.com/fscarmen/sba]"
+E[69]="Install sba scripts (argo + sing-box) [https://github.com/charmtv/sing-box01]"
+C[69]="安装 sba 脚本 (argo + sing-box) [https://github.com/charmtv/sing-box01]"
 E[70]="Please set inSecure in tls to true."
 C[70]="请把 tls 里的 inSecure 设置为 true"
 E[71]="Create shortcut [ sb ] successfully."
@@ -198,8 +198,8 @@ E[84]="Set SElinux: enforcing --> disabled"
 C[84]="设置 SElinux: enforcing --> disabled"
 E[85]="Please input Argo Token or Json ( User can easily obtain the json at https://fscarmen.cloudflare.now.cc ):"
 C[85]="请输入 Argo Token 或者 Json ( 用户通过以下网站轻松获取 json: https://fscarmen.cloudflare.now.cc ):"
-E[86]="Argo authentication message does not match the rules, neither Token nor Json, script exits. Feedback:[https://github.com/fscarmen/sba/issues]"
-C[86]="Argo 认证信息不符合规则，既不是 Token，也是不是 Json，脚本退出，问题反馈:[https://github.com/fscarmen/sba/issues]"
+E[86]="Argo authentication message does not match the rules, neither Token nor Json, script exits. Feedback:[https://github.com/charmtv/sing-box01/issues]"
+C[86]="Argo 认证信息不符合规则，既不是 Token，也是不是 Json，脚本退出，问题反馈:[https://github.com/charmtv/sing-box01/issues]"
 E[87]="Please input the Argo domain (Default is temporary domain if left blank):"
 C[87]="请输入 Argo 域名 (如果没有，可以跳过以使用 Argo 临时域名):"
 E[88]="Please input the Argo domain (cannot be empty):"
@@ -212,8 +212,8 @@ E[91]="Argo tunnel type:\n 1. Try\n 2. Token or Json"
 C[91]="Argo 隧道类型:\n 1. Try\n 2. Token 或者 Json"
 E[92]="Change the Argo tunnel (sb -t)"
 C[92]="更换 Argo 隧道 (sb -t)"
-E[93]="Can't get the temporary tunnel domain, script exits. Feedback:[https://github.com/fscarmen/sing-box/issues]"
-C[93]="获取不到临时隧道的域名，脚本退出，问题反馈:[https://github.com/fscarmen/sing-box/issues]"
+E[93]="Can't get the temporary tunnel domain, script exits. Feedback:[https://github.com/charmtv/sing-box01/issues]"
+C[93]="获取不到临时隧道的域名，脚本退出，问题反馈:[https://github.com/charmtv/sing-box01/issues]"
 E[94]="Please bind \[\${ARGO_DOMAIN}] tunnel TYPE to HTTP and URL to \[\localhost:\${PORT_NGINX}] in Cloudflare."
 C[94]="请在 Cloudflare 绑定 \[\${ARGO_DOMAIN}] 隧道 TYPE 为 HTTP，URL 为 \[\localhost:\${PORT_NGINX}]"
 E[95]="netfilter-persistent installation failed, but the installation progress will not stop. portHopping forwarding rules are temporary rules, reboot may be invalidated."
@@ -638,14 +638,57 @@ check_install() {
   fi
 
   if [ "${STATUS[0]}" = "$(text 26)" ] && [ ! -s ${WORK_DIR}/sing-box ]; then
-    {
     # 获取需要下载的 sing-box 版本
     local ONLINE=$(get_sing_box_version)
-    wget --no-check-certificate --continue ${GH_PROXY}https://github.com/SagerNet/sing-box/releases/download/v$ONLINE/sing-box-$ONLINE-linux-$SING_BOX_ARCH.tar.gz -qO- | tar xz -C $TEMP_DIR sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box >/dev/null 2>&1
-    [ -s $TEMP_DIR/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box ] && mv $TEMP_DIR/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box $TEMP_DIR
-    wget --no-check-certificate --continue -qO $TEMP_DIR/jq ${GH_PROXY}https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-$JQ_ARCH >/dev/null 2>&1 && chmod +x $TEMP_DIR/jq >/dev/null 2>&1
-    wget --no-check-certificate --continue -qO $TEMP_DIR/qrencode ${GH_PROXY}https://github.com/fscarmen/client_template/raw/main/qrencode-go/qrencode-go-linux-$QRENCODE_ARCH >/dev/null 2>&1 && chmod +x $TEMP_DIR/qrencode >/dev/null 2>&1
-    }&
+    
+    # 检查版本号是否有效
+    if [ -z "$ONLINE" ] || [[ ! "$ONLINE" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+      warning "无法获取有效的 sing-box 版本号，使用默认版本 $DEFAULT_NEWEST_VERSION"
+      ONLINE="$DEFAULT_NEWEST_VERSION"
+    fi
+    
+    # 下载 sing-box
+    echo "正在下载 sing-box v$ONLINE ..."
+    local DOWNLOAD_SUCCESS=false
+    
+    # 尝试下载 3 次
+    for attempt in {1..3}; do
+      if wget --no-check-certificate --continue --tries=2 --timeout=30 ${GH_PROXY}https://github.com/SagerNet/sing-box/releases/download/v$ONLINE/sing-box-$ONLINE-linux-$SING_BOX_ARCH.tar.gz -qO- | tar xz -C $TEMP_DIR sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box 2>/dev/null; then
+        if [ -s "$TEMP_DIR/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box" ]; then
+          mv $TEMP_DIR/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box $TEMP_DIR/sing-box
+          chmod +x $TEMP_DIR/sing-box
+          rm -rf $TEMP_DIR/sing-box-$ONLINE-linux-$SING_BOX_ARCH
+          DOWNLOAD_SUCCESS=true
+          echo "sing-box 下载成功！"
+          break
+        fi
+      fi
+      echo "下载尝试 $attempt 失败，正在重试..."
+      sleep 2
+    done
+    
+    # 如果下载失败，报错退出
+    if [ "$DOWNLOAD_SUCCESS" != "true" ]; then
+      error "\n $(text 42) "
+      exit 1
+    fi
+    
+    # 下载其他依赖
+    echo "正在下载依赖工具..."
+    
+    # 下载 jq
+    if ! wget --no-check-certificate --continue --tries=2 --timeout=15 -qO $TEMP_DIR/jq ${GH_PROXY}https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-$JQ_ARCH 2>/dev/null; then
+      warning "jq 下载失败，可能影响部分功能"
+    else
+      chmod +x $TEMP_DIR/jq 2>/dev/null
+    fi
+    
+    # 下载 qrencode
+    if ! wget --no-check-certificate --continue --tries=2 --timeout=15 -qO $TEMP_DIR/qrencode ${GH_PROXY}https://github.com/charmtv/sing-box01/raw/main/qrencode-go/qrencode-go-linux-$QRENCODE_ARCH 2>/dev/null; then
+      warning "qrencode 下载失败，可能影响二维码生成"
+    else
+      chmod +x $TEMP_DIR/qrencode 2>/dev/null
+    fi
   fi
 
   if [ "$NONINTERACTIVE_INSTALL" != 'noninteractive_install' ]; then
@@ -792,19 +835,32 @@ check_system_info() {
 # 获取 sing-box 最新版本
 get_sing_box_version() {
   # FORCE_VERSION 用于在 sing-box 某个主程序出现 bug 时，强制为指定版本，以防止运行出错
-  local FORCE_VERSION=$(wget --no-check-certificate --tries=2 --timeout=3 -qO- ${GH_PROXY}https://raw.githubusercontent.com/fscarmen/sing-box/refs/heads/main/force_version | sed 's/^[vV]//g; s/\r//g')
-  if grep -q '.' <<< "$FORCE_VERSION"; then
+  local FORCE_VERSION=$(wget --no-check-certificate --tries=2 --timeout=10 -qO- ${GH_PROXY}https://raw.githubusercontent.com/charmtv/sing-box01/refs/heads/main/force_version 2>/dev/null | sed 's/^[vV]//g; s/\r//g; s/\n//g')
+  
+  # 验证强制版本号格式
+  if [[ "$FORCE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
     local RESULT_VERSION="$FORCE_VERSION"
+    echo "使用强制指定版本: v$RESULT_VERSION" >&2
   else
+    echo "获取最新 sing-box 版本..." >&2
     # 先判断 github api 返回 http 状态码是否为 200，有时候 IP 会被限制，导致获取不到最新版本
-    local API_RESPONSE=$(wget --no-check-certificate --server-response --tries=2 --timeout=3 -qO- "${GH_PROXY}https://api.github.com/repos/SagerNet/sing-box/releases" 2>&1 | grep -E '^[ ]+HTTP/|tag_name')
+    local API_RESPONSE=$(wget --no-check-certificate --server-response --tries=2 --timeout=10 -qO- "${GH_PROXY}https://api.github.com/repos/SagerNet/sing-box/releases/latest" 2>&1)
+    
     if grep -q 'HTTP.* 200' <<< "$API_RESPONSE"; then
-      local VERSION_LATEST=$(awk -F '["v-]' '/tag_name/{print $5}' <<< "$API_RESPONSE" | sort -Vr | sed -n '1p')
-      local RESULT_VERSION=$(wget --no-check-certificate --tries=2 --timeout=3 -qO- ${GH_PROXY}https://api.github.com/repos/SagerNet/sing-box/releases | awk -F '["v]' -v var="tag_name.*$VERSION_LATEST" '$0 ~ var {print $5; exit}')
+      local RESULT_VERSION=$(echo "$API_RESPONSE" | grep -o '"tag_name":"[^"]*' | cut -d'"' -f4 | sed 's/^[vV]//g')
+      echo "获取到最新版本: v$RESULT_VERSION" >&2
     else
-      local RESULT_VERSION="$DEFAULT_NEWEST_VERSION"
+      echo "API 请求失败，使用默认版本" >&2
+      local RESULT_VERSION="${DEFAULT_NEWEST_VERSION:-1.12.0-beta.15}"
     fi
   fi
+  
+  # 最后验证版本号格式
+  if [[ ! "$RESULT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+    echo "版本号格式验证失败，使用默认版本" >&2
+    local RESULT_VERSION="${DEFAULT_NEWEST_VERSION:-1.12.0-beta.15}"
+  fi
+  
   echo "$RESULT_VERSION"
 }
 
@@ -3576,4 +3632,5 @@ if [ "$NONINTERACTIVE_INSTALL" = 'noninteractive_install' ]; then
 else
   menu_setting
   menu
+fi
 fi

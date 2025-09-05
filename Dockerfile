@@ -8,15 +8,40 @@
 # ═══════════════════════════════════════════════════════════════
 
 # 🔐 第一阶段：生成 SSL 证书
-FROM alpine/openssl:latest AS ssl-generator
+FROM alpine/openssl:3.19 AS ssl-generator
 
-# 🔑 生成私钥和自签名证书
-RUN openssl ecparam -genkey -name prime256v1 -out /private.key && \
-    openssl req -new -x509 -days 36500 -key /private.key -out /cert.pem \
-    -subj "/C=CN/ST=Beijing/L=Beijing/O=MiLier/OU=VPS/CN=milier.tech/emailAddress=admin@milier.tech"
+# 🔑 生成更安全的私钥和自签名证书
+RUN openssl ecparam -genkey -name secp384r1 -out /private.key && \
+    openssl req -new -x509 -days 365 -key /private.key -out /cert.pem \
+    -subj "/C=CN/ST=Beijing/L=Beijing/O=MiLier/OU=VPS/CN=milier.tech/emailAddress=admin@milier.tech" \
+    -extensions v3_ca \
+    -config <(echo "
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = CN
+ST = Beijing
+L = Beijing
+O = MiLier
+OU = VPS
+CN = milier.tech
+emailAddress = admin@milier.tech
+
+[v3_req]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = milier.tech
+DNS.2 = *.milier.tech
+")
 
 # 🚀 第二阶段：构建主镜像
-FROM alpine:latest
+FROM alpine:3.19
 
 # 🏷️ 镜像标签信息
 LABEL maintainer="米粒儿 <admin@milier.tech>" \
@@ -40,13 +65,24 @@ COPY docker_init.sh /sing-box/init.sh
 # 🔧 系统配置和依赖安装
 RUN set -ex && \
     # 📦 安装必要的软件包
-    apk add --no-cache supervisor wget nginx bash curl && \
+    apk add --no-cache --virtual .build-deps supervisor wget nginx bash curl && \
+    # 👤 创建非root用户
+    addgroup -g 1000 singbox && \
+    adduser -D -u 1000 -G singbox singbox && \
     # 📂 创建必要的目录
-    mkdir -p /sing-box/conf /sing-box/subscribe /sing-box/logs && \
-    # 🔑 设置执行权限
+    mkdir -p /sing-box/conf /sing-box/subscribe /sing-box/logs /var/log/supervisor && \
+    # 🔑 设置执行权限和文件所有权
     chmod +x /sing-box/init.sh && \
-    # 🧹 清理缓存
+    chown -R singbox:singbox /sing-box && \
+    # 🔒 设置证书文件权限
+    chmod 600 /sing-box/cert/private.key && \
+    chmod 644 /sing-box/cert/cert.pem && \
+    # 🧹 清理缓存和临时文件
+    apk del .build-deps && \
     rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+
+# 👤 切换到非root用户
+USER singbox
 
 # 💡 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
