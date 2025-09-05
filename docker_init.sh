@@ -7,8 +7,8 @@
 # 🎥 YouTube：youtube.com/@米粒儿813  
 # 📝 博客：https://ooovps.com
 #
-# 🗓️ 最后更新：2025.01.27 (北京时间)
-# 📝 版本：v1.2.19
+# 🗓️ 最后更新：2025.09.05 (北京时间)
+# 📝 版本：v1.2.20
 # ═══════════════════════════════════════════════════════════════
 
 # 设置严格模式
@@ -37,12 +37,17 @@ detect_server_ip() {
     local detected_ipv6=""
     local final_ip=""
     
-    # 方法1: 使用多个IP检测服务
+    # 方法1: 使用多个IP检测服务 - 增强版
     local ip_services=(
+        "https://api.ipify.org"
+        "https://ipv4.icanhazip.com"
+        "https://api.ip.sb"
+        "https://ipinfo.io/ip"
+        "https://checkip.amazonaws.com"
+        "https://ifconfig.me/ip"
         "http://api-ipv4.ip.sb"
-        "http://ipv4.icanhazip.com"
-        "http://ipinfo.io/ip"
-        "http://ifconfig.me/ip"
+        "https://ip.3322.net"
+        "https://myip.ipip.net"
         "http://ipecho.net/plain"
         "http://ident.me"
         "http://whatismyip.akamai.com"

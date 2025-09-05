@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION='v1.2.19 (2025.01.27)'
+VERSION='v1.2.20 (2025.09.05)'
 
 # 各变量默认值
 GH_PROXY='https://hub.glowp.xyz/'
@@ -960,12 +960,54 @@ check_system_ip() {
     [ -n "$DEFAULT_LOCAL_IP6" ] && local BIND_ADDRESS6="--bind-address=$DEFAULT_LOCAL_IP6"
   fi
 
-  WAN4=$(wget $BIND_ADDRESS4 -qO- --no-check-certificate --tries=2 --timeout=2 http://api-ipv4.ip.sb)
+  # 增强IPv4检测 - 多个备用源
+  local ipv4_sources=(
+    "http://api-ipv4.ip.sb"
+    "https://api.ipify.org"
+    "https://ipv4.icanhazip.com"
+    "https://api.ip.sb"
+    "https://ipinfo.io/ip"
+    "https://checkip.amazonaws.com"
+    "https://ifconfig.me/ip"
+  )
+  
+  WAN4=""
+  for source in "${ipv4_sources[@]}"; do
+    WAN4=$(wget $BIND_ADDRESS4 -qO- --no-check-certificate --tries=1 --timeout=3 "$source" 2>/dev/null | tr -d '\n\r' | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$')
+    [ -n "$WAN4" ] && break
+  done
+  
+  # 如果所有源都失败，尝试从网络接口获取
+  if [ -z "$WAN4" ]; then
+    WAN4=$(ip route get 8.8.8.8 2>/dev/null | grep -oP 'src \K\S+' | head -1)
+    [ -z "$WAN4" ] && WAN4=$(hostname -I 2>/dev/null | awk '{print $1}')
+  fi
+  
   [ -n "$WAN4" ] && local IP4_JSON=$(wget -qO- --no-check-certificate --tries=2 --timeout=10 https://ip.forvps.gq/${WAN4}${IS_CHINESE}) &&
   COUNTRY4=$(sed -En 's/.*"country":[ ]*"([^"]+)".*/\1/p' <<< "$IP4_JSON") &&
   ASNORG4=$(sed -En 's/.*"(isp|asn_org)":[ ]*"([^"]+)".*/\2/p' <<< "$IP4_JSON")
 
-  WAN6=$(wget $BIND_ADDRESS6 -qO- --no-check-certificate --tries=2 --timeout=2 http://api-ipv6.ip.sb)
+  # 增强IPv6检测 - 多个备用源
+  local ipv6_sources=(
+    "http://api-ipv6.ip.sb"
+    "https://api64.ipify.org"
+    "https://ipv6.icanhazip.com"
+    "https://api6.ip.sb"
+    "https://ifconfig.me/ipv6"
+  )
+  
+  WAN6=""
+  for source in "${ipv6_sources[@]}"; do
+    WAN6=$(wget $BIND_ADDRESS6 -qO- --no-check-certificate --tries=1 --timeout=3 "$source" 2>/dev/null | tr -d '\n\r' | grep -E '^[0-9a-fA-F:]+$')
+    [ -n "$WAN6" ] && break
+  done
+  
+  # 如果所有源都失败，尝试从网络接口获取
+  if [ -z "$WAN6" ]; then
+    WAN6=$(ip -6 route get 2001:4860:4860::8888 2>/dev/null | grep -oP 'src \K\S+' | head -1)
+    [ -z "$WAN6" ] && WAN6=$(hostname -I 2>/dev/null | awk '{print $2}')
+  fi
+  
   [ -n "$WAN6" ] && local IP6_JSON=$(wget -qO- --no-check-certificate --tries=2 --timeout=10 https://ip.forvps.gq/${WAN6}${IS_CHINESE}) &&
   COUNTRY6=$(sed -En 's/.*"country":[ ]*"([^"]+)".*/\1/p' <<< "$IP6_JSON") &&
   ASNORG6=$(sed -En 's/.*"(isp|asn_org)":[ ]*"([^"]+)".*/\2/p' <<< "$IP6_JSON")

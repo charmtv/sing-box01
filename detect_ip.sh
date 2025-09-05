@@ -23,10 +23,15 @@ MAX_RETRIES=3
 
 # IP检测服务列表
 IPV4_SERVICES=(
+    "https://api.ipify.org"
+    "https://ipv4.icanhazip.com"
+    "https://api.ip.sb"
+    "https://ipinfo.io/ip"
+    "https://checkip.amazonaws.com"
+    "https://ifconfig.me/ip"
     "http://api-ipv4.ip.sb"
-    "http://ipv4.icanhazip.com"
-    "http://ipinfo.io/ip"
-    "http://ifconfig.me/ip"
+    "https://ip.3322.net"
+    "https://myip.ipip.net"
     "http://ipecho.net/plain"
     "http://ident.me"
     "http://whatismyip.akamai.com"
