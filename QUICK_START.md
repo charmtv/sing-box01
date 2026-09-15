@@ -1,4 +1,4 @@
-# 🚀 米粒儿 Sing-box 快速开始指南
+# 🚀 Sing-box 快速开始指南
 
 ## 🔧 IP地址识别问题修复
 
@@ -37,11 +37,11 @@
 
 ```bash
 # 构建镜像
-docker build -t milier-sing-box .
+docker build -t sing-box-family .
 
 # 自动检测IP地址并启动容器
 docker run -d \
-    --name milier-sing-box \
+    --name sing-box-family \
     -p 8800-8820:8800-8820/tcp \
     -p 8800-8820:8800-8820/udp \
     -e START_PORT=8800 \
@@ -59,8 +59,8 @@ docker run -d \
     -e ANYTLS=true \
     -e UUID=20f7fca4-86e5-4ddf-9eed-24142073d197 \
     -e CDN=www.csgo.com \
-    -e NODE_NAME=米粒儿节点 \
-    milier-sing-box
+    -e NODE_NAME=Sing-box节点 \
+    sing-box-family
 ```
 
 ### 2. 手动指定IP地址
@@ -68,14 +68,14 @@ docker run -d \
 ```bash
 # 如果您知道服务器IP地址
 docker run -d \
-    --name milier-sing-box \
+    --name sing-box-family \
     -p 8800-8820:8800-8820/tcp \
     -p 8800-8820:8800-8820/udp \
     -e START_PORT=8800 \
     -e SERVER_IP=你的服务器IP地址 \
     -e XTLS_REALITY=true \
     -e HYSTERIA2=true \
-    milier-sing-box
+    sing-box-family
 ```
 
 ## 🧪 测试部署
@@ -106,7 +106,7 @@ docker run -d \
 2. **容器启动失败**
    ```bash
    # 检查日志
-   docker logs milier-sing-box
+   docker logs sing-box-family
    
    # 检查配置
    ./validate_config.sh
@@ -115,7 +115,7 @@ docker run -d \
 3. **服务无法访问**
    ```bash
    # 运行健康检查
-   docker exec milier-sing-box /sing-box/health_check.sh
+   docker exec sing-box-family /sing-box/health_check.sh
    ```
 
 ### 手动设置IP地址
@@ -137,30 +137,22 @@ docker run -e SERVER_IP="你的服务器IP地址" ...
 docker ps
 
 # 查看容器日志
-docker logs milier-sing-box
+docker logs sing-box-family
 
 # 进入容器
-docker exec -it milier-sing-box bash
+docker exec -it sing-box-family bash
 
 # 停止容器
-docker stop milier-sing-box
+docker stop sing-box-family
 
 # 删除容器
-docker rm milier-sing-box
+docker rm sing-box-family
 
 # 查看镜像
 docker images
 
 # 删除镜像
-docker rmi milier-sing-box
+docker rmi sing-box-family
 ```
-
-## 🎯 获取帮助
-
-- 📱 TG 群：https://t.me/mlkjfx6
-- 🎥 YouTube：youtube.com/@米粒儿813
-- 📝 博客：https://ooovps.com
-
----
 
 **🎉 现在您可以享受更安全、更快速、更稳定的 sing-box 服务了！**

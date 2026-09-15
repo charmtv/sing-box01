@@ -1,4 +1,4 @@
-# 🚀 米粒儿 Sing-box 优化指南
+# 🚀 Sing-box 优化指南
 
 ## 📋 优化概览
 
@@ -246,7 +246,7 @@ add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" alway
 
 ### 1. 构建优化后的镜像
 ```bash
-docker build -t milier-sing-box-optimized .
+docker build -t sing-box-family-optimized .
 ```
 
 ### 2. 自动检测服务器IP地址
@@ -265,30 +265,30 @@ docker build -t milier-sing-box-optimized .
 ```bash
 # 自动检测IP地址后启动
 docker run -d \
-    --name milier-sing-box \
+    --name sing-box-family \
     -p 8800-8820:8800-8820/tcp \
     -p 8800-8820:8800-8820/udp \
     -e START_PORT=8800 \
     -e SERVER_IP=$(./detect_ip.sh) \
     -e XTLS_REALITY=true \
     -e HYSTERIA2=true \
-    milier-sing-box-optimized
+    sing-box-family-optimized
 
 # 或者手动指定IP地址
 docker run -d \
-    --name milier-sing-box \
+    --name sing-box-family \
     -p 8800-8820:8800-8820/tcp \
     -p 8800-8820:8800-8820/udp \
     -e START_PORT=8800 \
     -e SERVER_IP=your_server_ip \
     -e XTLS_REALITY=true \
     -e HYSTERIA2=true \
-    milier-sing-box-optimized
+    sing-box-family-optimized
 ```
 
 ### 4. 运行健康检查
 ```bash
-docker exec milier-sing-box /sing-box/health_check.sh
+docker exec sing-box-family /sing-box/health_check.sh
 ```
 
 ### 5. 运行测试
@@ -307,26 +307,26 @@ docker exec milier-sing-box /sing-box/health_check.sh
 ### 日志查看
 ```bash
 # 查看容器日志
-docker logs milier-sing-box
+docker logs sing-box-family
 
 # 查看 nginx 日志
-docker exec milier-sing-box tail -f /var/log/nginx/access.log
-docker exec milier-sing-box tail -f /var/log/nginx/error.log
+docker exec sing-box-family tail -f /var/log/nginx/access.log
+docker exec sing-box-family tail -f /var/log/nginx/error.log
 
 # 查看 sing-box 日志
-docker exec milier-sing-box tail -f /sing-box/logs/box.log
+docker exec sing-box-family tail -f /sing-box/logs/box.log
 ```
 
 ### 性能监控
 ```bash
 # 查看容器资源使用
-docker stats milier-sing-box
+docker stats sing-box-family
 
 # 查看服务状态
-docker exec milier-sing-box supervisorctl status
+docker exec sing-box-family supervisorctl status
 
 # 运行健康检查
-docker exec milier-sing-box /sing-box/health_check.sh
+docker exec sing-box-family /sing-box/health_check.sh
 ```
 
 ## 📝 注意事项
@@ -344,12 +344,5 @@ docker exec milier-sing-box /sing-box/health_check.sh
 2. **服务无法访问**: 检查防火墙和网络配置
 3. **性能问题**: 运行健康检查脚本诊断问题
 4. **证书错误**: 检查证书文件权限和有效性
-
-### 获取帮助
-- 📱 TG 群：https://t.me/mlkjfx6
-- 🎥 YouTube：youtube.com/@米粒儿813
-- 📝 博客：https://ooovps.com
-
----
 
 **🎉 优化完成！享受更安全、更快速、更稳定的 sing-box 服务！**

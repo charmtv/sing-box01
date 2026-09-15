@@ -1,11 +1,6 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════
-# 🧪 米粒儿 Sing-box Docker 测试脚本
-#
-# 📱 作者：米粒儿
-# 💬 TG 群：https://t.me/mlkjfx6
-# 🎥 YouTube：youtube.com/@米粒儿813
-# 📝 博客：https://ooovps.com
+# 🧪 Sing-box Docker 测试脚本
 # ═══════════════════════════════════════════════════════════════
 
 # 设置严格模式
@@ -17,8 +12,8 @@ info() { echo -e "\033[32m\033[01m$*\033[0m"; }   # 绿色
 hint() { echo -e "\033[33m\033[01m$*\033[0m"; }   # 黄色
 
 # 配置
-CONTAINER_NAME="milier-sing-box-test"
-IMAGE_NAME="milier-sing-box-test"
+CONTAINER_NAME="sing-box-family-test"
+IMAGE_NAME="sing-box-family-test"
 TEST_TIMEOUT=60
 
 # 清理函数
@@ -139,7 +134,7 @@ if docker run -d \
     -e ANYTLS=true \
     -e UUID=20f7fca4-86e5-4ddf-9eed-24142073d197 \
     -e CDN=www.csgo.com \
-    -e NODE_NAME=米粒儿测试节点 \
+    -e NODE_NAME=Sing-box测试节点 \
     "$IMAGE_NAME"; then
     info "✅ 容器启动成功！"
     

@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 # ═══════════════════════════════════════════════════════════════
-# 🌟 米粒儿 Sing-box 全家桶 Docker 初始化脚本 🌟
-#
-# 📱 作者：米粒儿  
-# 💬 TG 群：https://t.me/mlkjfx6
-# 🎥 YouTube：youtube.com/@米粒儿813  
-# 📝 博客：https://ooovps.com
+# 🌟 Sing-box 全家桶 Docker 初始化脚本 🌟
 #
 # 🗓️ 最后更新：2025.09.05 (北京时间)
 # 📝 版本：v1.2.20
@@ -1685,19 +1680,10 @@ $(${WORK_DIR}/qrencode https://${ARGO_DOMAIN}/${UUID}/auto)
   echo "$EXPORT_LIST_FILE" > ${WORK_DIR}/list
   cat ${WORK_DIR}/list
 
-  # 显示脚本使用情况数据
+  # 显示部署完成信息
   hint "\n🎉========================================🎉\n"
-  local STAT=$(wget --no-check-certificate -qO- --timeout=3 "https://stat.milier.tech/api/updateStats?script=milier-sing-box-family.sh")
-  [[ "$STAT" =~ \"todayCount\":([0-9]+),\"totalCount\":([0-9]+) ]] && local TODAY="${BASH_REMATCH[1]}" && local TOTAL="${BASH_REMATCH[2]}"
-  
   hint "┌─────────────────────────────────────────┐"
-  hint "│  🌟 米粒儿 Sing-box 全家桶已部署成功!  │"
-  hint "├─────────────────────────────────────────┤"  
-  hint "│  📈 今日部署: $TODAY 次                     │"
-  hint "│  🔥 累计部署: $TOTAL 次                     │"
-  hint "│  📱 TG 交流群: @mlkjfx6                  │"
-  hint "│  🎥 YouTube: @米粒儿813                   │"  
-  hint "│  📝 博客: https://ooovps.com             │"
+  hint "│       🌟 Sing-box 全家桶已部署成功!      │"
   hint "└─────────────────────────────────────────┘"
   hint "\n🎊========================================🎊\n"
 }

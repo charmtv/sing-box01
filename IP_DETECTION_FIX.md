@@ -52,7 +52,7 @@
 
 ### 测试输出
 ```
-🚀 米粒儿 Sing-box IP地址检测工具 (Windows版)
+🚀 Sing-box IP地址检测工具 (Windows版)
 ═══════════════════════════════════════════════════════════════
 🔍 正在检测服务器IP地址...
 尝试使用PowerShell获取IP地址...
@@ -103,14 +103,14 @@
 ```bash
 # 自动检测IP地址并启动容器
 docker run -d \
-    --name milier-sing-box \
+    --name sing-box-family \
     -p 8800-8820:8800-8820/tcp \
     -p 8800-8820:8800-8820/udp \
     -e START_PORT=8800 \
     -e SERVER_IP=$(./detect_ip.sh) \
     -e XTLS_REALITY=true \
     -e HYSTERIA2=true \
-    milier-sing-box
+    sing-box-family
 ```
 
 ## 📊 修复效果

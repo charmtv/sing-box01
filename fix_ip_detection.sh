@@ -1,11 +1,6 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════
-# 🔧 米粒儿 Sing-box IP地址识别修复脚本
-#
-# 📱 作者：米粒儿
-# 💬 TG 群：https://t.me/mlkjfx6
-# 🎥 YouTube：youtube.com/@米粒儿813
-# 📝 博客：https://ooovps.com
+# 🔧 Sing-box IP地址识别修复脚本
 # ═══════════════════════════════════════════════════════════════
 
 # 设置严格模式
@@ -21,7 +16,7 @@ success() { echo -e "\033[36m\033[01m$*\033[0m"; } # 青色
 TIMEOUT=10
 MAX_RETRIES=3
 
-echo "🔧 米粒儿 Sing-box IP地址识别修复工具"
+echo "🔧 Sing-box IP地址识别修复工具"
 echo "═══════════════════════════════════════════════════════════════"
 
 # 检查系统环境
@@ -241,14 +236,14 @@ generate_config_suggestions() {
     echo ""
     hint "2. Docker运行命令:"
     echo "   docker run -d \\"
-    echo "     --name milier-sing-box \\"
+    echo "     --name sing-box-family \\"
     echo "     -p 8800-8820:8800-8820/tcp \\"
     echo "     -p 8800-8820:8800-8820/udp \\"
     echo "     -e START_PORT=8800 \\"
     echo "     -e SERVER_IP=\"$ip\" \\"
     echo "     -e XTLS_REALITY=true \\"
     echo "     -e HYSTERIA2=true \\"
-    echo "     milier-sing-box"
+    echo "     sing-box-family"
     echo ""
     hint "3. 配置文件设置:"
     echo "   在 config.conf 中设置:"

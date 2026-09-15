@@ -1,17 +1,10 @@
 <div align="center">
 
-# 🌟 【米粒儿 Sing-box 全家桶】 🌟
+# 🌟 【Sing-box 全家桶】 🌟
 
 [![GitHub Stars](https://img.shields.io/github/stars/charmtv/sing-box01?style=flat-square&logo=github&color=yellow)](https://github.com/charmtv/sing-box01)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![TG Group](https://img.shields.io/badge/Telegram-Join_Group-blue?style=flat-square&logo=telegram)](https://t.me/mlkjfx6)
-[![YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?style=flat-square&logo=youtube)](https://youtube.com/@米粒儿813)
-
 **🎯 一键部署多协议代理服务器 | 支持 11+ 协议 | 自适应客户端订阅**
-
-**📱 作者：米粒儿**  
-**💬 TG 交流群：[@https://t.me/mlkjfx6](https://t.me/mlkjfx6)**  
-**🎥 油管频道：[youtube.com/@米粒儿813](https://youtube.com/@米粒儿813)**
 
 </div>
 
@@ -141,7 +134,7 @@
 
 <div align="center">
 
-### 🎨 **米粒儿精心打造 · 功能丰富 · 界面美观**
+### 🎨 **功能丰富 · 界面美观**
 
 </div>
 
@@ -192,7 +185,7 @@
 
 <div align="center">
 
-### 💫 **米粒儿一键脚本 · 简单快捷 · 功能强大**
+### 💫 **一键脚本 · 简单快捷 · 功能强大**
 
 </div>
 
@@ -246,7 +239,7 @@ sb
 
 <div align="center">
 
-### ⚡ **米粒儿极速部署 · 一键到位 · 省时省力**
+### ⚡ **极速部署 · 一键到位 · 省时省力**
 
 </div>
 
@@ -467,7 +460,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 | `--ARGO_DOMAIN` | 🌐 Argo 固定域名 | `--ARGO_DOMAIN sb.argo.com` |
 | `--ARGO_AUTH` | 🔐 Argo 认证信息 | Json 或 Token 内容 |
 | `--PORT_HOPPING_RANGE` | 🏃 端口跳跃范围 | `--PORT_HOPPING_RANGE 50000:51000` |
-| `--NODE_NAME_CONFIRM` | 📝 节点名称 | `--NODE_NAME_CONFIRM 米粒儿节点` |
+| `--NODE_NAME_CONFIRM` | 📝 节点名称 | `--NODE_NAME_CONFIRM Sing-box节点` |
 
 
 ---
@@ -476,7 +469,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 
 <div align="center">
 
-### 🌈 **米粒儿 Argo 隧道 · 内网穿透 · CDN 加速**
+### 🌈 **Argo 隧道 · 内网穿透 · CDN 加速**
 
 > 🔗 **详细教程**：[群晖套件：Cloudflare Tunnel 内网穿透中文教程 支持DSM6、7](https://imnks.com/5984.html)
 
@@ -495,7 +488,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 
 <div align="center">
 
-### 🚀 **米粒儿 CDN 优化 · 高速连接 · 智能分流**
+### 🚀 **CDN 优化 · 高速连接 · 智能分流**
 
 </div>
 
@@ -520,7 +513,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 
 <div align="center">
 
-### 🚀 **米粒儿 Docker 版 · 一键部署 · 开箱即用**
+### 🚀 **Docker 版 · 一键部署 · 开箱即用**
 
 </div>
 
@@ -552,10 +545,10 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 <br>
 
 ```bash
-# 🚀 米粒儿 Docker 一键部署
+# 🚀 Docker 一键部署
 docker run -dit \
     --pull always \
-    --name milier-sing-box \
+    --name sing-box-family \
     -p 8800-8820:8800-8820/tcp \
     -p 8800-8820:8800-8820/udp \
     -e START_PORT=8800 \
@@ -573,7 +566,7 @@ docker run -dit \
     -e ANYTLS=true \
     -e UUID=20f7fca4-86e5-4ddf-9eed-24142073d197 \
     -e CDN=www.csgo.com \
-    -e NODE_NAME=米粒儿节点 \
+    -e NODE_NAME=Sing-box节点 \
     -e ARGO_DOMAIN=sb.argo.com \
     -e ARGO_AUTH='{"AccountTag":"9cc9e3e4d8f29d2a02e297f14f20513a","TunnelSecret":"6AYfKBOoNlPiTAuWg64ZwujsNuERpWLm6pPJ2qpN8PM=","TunnelID":"1ac55430-f4dc-47d5-a850-bdce824c4101"}' \
     charmtv/sing-box01
@@ -585,22 +578,22 @@ docker run -dit \
 <br>
 
 ```yaml
-# 🎉 米粒儿 Docker Compose 配置文件
+# 🎉 Docker Compose 配置文件
 version: '3.8'
 
 networks:
-  milier-sing-box:
-    name: milier-sing-box
+  sing-box-family:
+    name: sing-box-family
     driver: bridge
 
 services:
-  milier-sing-box:
+  sing-box-family:
     image: charmtv/sing-box01:latest
     pull_policy: always
-    container_name: milier-sing-box
+    container_name: sing-box-family
     restart: always
     networks:
-      - milier-sing-box
+      - sing-box-family
     ports:
       - "8800-8820:8800-8820/tcp"
       - "8800-8820:8800-8820/udp"
@@ -608,7 +601,7 @@ services:
       # 🏁 基本配置
       - START_PORT=8800
       - SERVER_IP=123.123.123.123
-      - NODE_NAME=米粒儿节点
+      - NODE_NAME=Sing-box节点
       - UUID=20f7fca4-86e5-4ddf-9eed-24142073d197
       - CDN=www.csgo.com
       
@@ -629,8 +622,8 @@ services:
       - ARGO_DOMAIN=sb.argo.com
       - ARGO_AUTH=eyJhIjoiOWNjOWUzZTRkOGYyOWQyYTAyZTI5N2YxNGYyMDUxM2EiLCJ0IjoiOGNiZDA4ZjItNGM0MC00OGY1LTlmZDYtZjlmMWQ0YTcxMjUyIiwicyI6IllXWTFORGN4TW1ZdE5HTXdZUzAwT0RaakxUbGxNMkl0Wm1VMk5URTFOR0l4TkdKayJ9
     labels:
-      - "com.docker.compose.project=milier-sing-box"
-      - "maintainer=米粒儿"
+      - "com.docker.compose.project=sing-box-family"
+      - "maintainer=charmtv"
       - "version=v1.2.18"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8800"]
@@ -645,18 +638,18 @@ services:
 
 <div align="center">
 
-> 💡 **贴心提示**：所有指令都已针对米粒儿版本优化
+> 💡 **贴心提示**：以下指令适用于当前版本
 
 </div>
 
 | 🔧 **功能** | 📝 **指令** | 💬 **说明** |
 |-------------|-------------|-------------|
-| 📊 **查看节点** | `docker exec -it milier-sing-box cat list` | 显示所有节点配置信息 |
-| 📋 **查看日志** | `docker logs -f milier-sing-box` | 实时查看容器运行日志 |
-| ⬆️ **更新版本** | `docker exec -it milier-sing-box bash init.sh -v` | 更新到最新 Sing-box 版本 |
-| 📈 **资源监控** | `docker stats milier-sing-box` | 查看 CPU、内存、网络使用情况 |
-| ⏸️ **暂停容器** | **Docker**: `docker stop milier-sing-box`<br/>**Compose**: `docker-compose stop` | 暂停容器运行 |
-| 🗑️ **删除容器** | **Docker**: `docker rm -f milier-sing-box`<br/>**Compose**: `docker-compose down` | 停止并删除容器 |
+| 📊 **查看节点** | `docker exec -it sing-box-family cat list` | 显示所有节点配置信息 |
+| 📋 **查看日志** | `docker logs -f sing-box-family` | 实时查看容器运行日志 |
+| ⬆️ **更新版本** | `docker exec -it sing-box-family bash init.sh -v` | 更新到最新 Sing-box 版本 |
+| 📈 **资源监控** | `docker stats sing-box-family` | 查看 CPU、内存、网络使用情况 |
+| ⏸️ **暂停容器** | **Docker**: `docker stop sing-box-family`<br/>**Compose**: `docker-compose stop` | 暂停容器运行 |
+| 🗑️ **删除容器** | **Docker**: `docker rm -f sing-box-family`<br/>**Compose**: `docker-compose down` | 停止并删除容器 |
 | 🧹 **清理镜像** | `docker rmi -f charmtv/sing-box01:latest` | 删除镜像文件 |
 
 
@@ -707,7 +700,7 @@ services:
 
 <div align="center">
 
-### 🦄 **米粒儿 ShadowTLS 配置 · 简单易懂 · 一次设置**
+### 🦄 **ShadowTLS 配置 · 简单易懂 · 一次设置**
 
 </div>
 
@@ -754,7 +747,7 @@ services:
 
 <div align="center">
 
-### 📁 **米粒儿项目架构 · 井井有条 · 一目了然**
+### 📁 **项目架构 · 井井有条 · 一目了然**
 
 </div>
 
@@ -826,48 +819,6 @@ services:
 
 ---
 
-## 💝 **赞助支持**
-
-### 🎯 **米粒儿 VPS 交流群**
-
-[![TG Group](https://img.shields.io/badge/💬_Telegram_群组-@mlkjfx6-blue?style=for-the-badge&logo=telegram)](https://t.me/mlkjfx6)
-[![YouTube](https://img.shields.io/badge/🎥_YouTube_频道-@米粒儿813-red?style=for-the-badge&logo=youtube)](https://youtube.com/@米粒儿813)
-[![Blog](https://img.shields.io/badge/📝_米粒博客-ooovps.com-green?style=for-the-badge)](https://ooovps.com)
-
-**📱 188 个成员，活跃交流中！**
-
-> 🌟 **专注内容**：白嫖VPS | 拼车服务 | 技术交流 | 中介服务
-
-### 🎁 **支持方式**
-
-<table>
-<tr>
-<td width="50%">
-
-#### 💰 **资金支持**
-- 🎯 赞助米粒儿继续开发
-- 🚀 提升服务器性能
-- 🔧 优化用户体验
-- 📚 制作更多教程
-
-</td>
-<td width="50%">
-
-#### 🤝 **参与贡献**
-- 🐛 提交 Issues 反馈
-- 💡 提出功能建议  
-- 🔧 贡献代码优化
-- 📢 帮助推广项目
-
-</td>
-</tr>
-</table>
-
- [访问  官网](https://sharon.io) 或 [加入 Telegram 群组](https://t.me/Network) 了解更多并申请赞助。
-
-
----
-
 ## ⚖️ **免责声明**
 
 <div align="center">
@@ -891,11 +842,9 @@ services:
 </td>
 <td width="50%">
 
-#### 📜 **版权声明**
-- 📝 文字数据图片有版权
-- 🔗 转载请注明来源
-- 👨‍💻 作者：米粒儿
-- 🏠 项目归米粒儿所有
+#### 📜 **许可说明**
+- 📄 许可信息请参阅 `LICENSE`
+- 🔗 转载请保留项目来源
 
 </td>
 </tr>
@@ -909,17 +858,15 @@ services:
 > - 🏠 **程序作者所在国家**的法律法规  
 > - 👤 **用户所在国家地区**的法律法规
 >
-> **⚠️ 免责条款**：程序作者米粒儿不对使用者任何不当行为负责
+> **⚠️ 免责条款**：项目维护者不对使用者的任何不当行为负责
 
 ---
 
 <div align="center">
 
-### 💝 **感谢使用米粒儿 Sing-box 全家桶！**
+### 💝 **感谢使用 Sing-box 全家桶！**
 
 **🎯 项目地址**: [https://github.com/charmtv/sing-box01](https://github.com/charmtv/sing-box01)
-
-**👨‍💻 作者**: 米粒儿 | **📱 TG群**: [@https://t.me/mlkjfx6](https://t.me/mlkjfx6) | **🎥 YouTube**: [youtube.com/@米粒儿813](https://youtube.com/@米粒儿813)
 
 **⭐ 觉得好用请给个Star！⭐**
 

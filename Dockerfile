@@ -1,10 +1,5 @@
 # ═══════════════════════════════════════════════════════════════
-# 🌟 米粒儿 Sing-box 全家桶 Docker 镜像 🌟
-# 
-# 📱 作者：米粒儿
-# 💬 TG 群：https://t.me/mlkjfx6  
-# 🎥 YouTube：youtube.com/@米粒儿813
-# 📝 博客：https://ooovps.com
+# 🌟 Sing-box 全家桶 Docker 镜像 🌟
 # ═══════════════════════════════════════════════════════════════
 
 # 🔐 第一阶段：生成 SSL 证书
@@ -13,7 +8,7 @@ FROM alpine/openssl:3.19 AS ssl-generator
 # 🔑 生成更安全的私钥和自签名证书
 RUN openssl ecparam -genkey -name secp384r1 -out /private.key && \
     openssl req -new -x509 -days 365 -key /private.key -out /cert.pem \
-    -subj "/C=CN/ST=Beijing/L=Beijing/O=MiLier/OU=VPS/CN=milier.tech/emailAddress=admin@milier.tech" \
+    -subj "/C=CN/ST=Beijing/L=Beijing/O=SingBox/OU=Proxy/CN=localhost" \
     -extensions v3_ca \
     -config <(echo "
 [req]
@@ -25,10 +20,9 @@ prompt = no
 C = CN
 ST = Beijing
 L = Beijing
-O = MiLier
-OU = VPS
-CN = milier.tech
-emailAddress = admin@milier.tech
+O = SingBox
+OU = Proxy
+CN = localhost
 
 [v3_req]
 basicConstraints = CA:FALSE
@@ -36,19 +30,18 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = milier.tech
-DNS.2 = *.milier.tech
+DNS.1 = localhost
 ")
 
 # 🚀 第二阶段：构建主镜像
 FROM alpine:3.19
 
 # 🏷️ 镜像标签信息
-LABEL maintainer="米粒儿 <admin@milier.tech>" \
-      description="米粒儿 Sing-box 全家桶 - 一键部署多协议代理服务器" \
+LABEL maintainer="charmtv" \
+      description="Sing-box 全家桶 - 一键部署多协议代理服务器" \
       version="1.2.18" \
-      url="https://t.me/mlkjfx6" \
-      vendor="MiLier"
+      url="https://github.com/charmtv/sing-box01" \
+      vendor="charmtv"
 
 # 🎯 构建参数
 ARG TARGETARCH

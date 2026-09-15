@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-echo 🚀 米粒儿 Sing-box IP地址检测工具 (Windows版)
+echo 🚀 Sing-box IP地址检测工具 (Windows版)
 echo ═══════════════════════════════════════════════════════════════
 
 echo 🔍 正在检测服务器IP地址...
