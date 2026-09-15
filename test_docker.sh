@@ -132,7 +132,7 @@ if docker run -d \
     -e H2_REALITY=true \
     -e GRPC_REALITY=true \
     -e ANYTLS=true \
-    -e UUID=20f7fca4-86e5-4ddf-9eed-24142073d197 \
+    -e UUID="$(cat /proc/sys/kernel/random/uuid)" \
     -e CDN=www.csgo.com \
     -e NODE_NAME=Sing-box测试节点 \
     "$IMAGE_NAME"; then

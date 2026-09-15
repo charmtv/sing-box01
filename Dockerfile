@@ -1,88 +1,54 @@
-# ═══════════════════════════════════════════════════════════════
-# 🌟 Sing-box 全家桶 Docker 镜像 🌟
-# ═══════════════════════════════════════════════════════════════
+# syntax=docker/dockerfile:1
 
-# 🔐 第一阶段：生成 SSL 证书
-FROM alpine/openssl:3.19 AS ssl-generator
-
-# 🔑 生成更安全的私钥和自签名证书
-RUN openssl ecparam -genkey -name secp384r1 -out /private.key && \
-    openssl req -new -x509 -days 365 -key /private.key -out /cert.pem \
-    -subj "/C=CN/ST=Beijing/L=Beijing/O=SingBox/OU=Proxy/CN=localhost" \
-    -extensions v3_ca \
-    -config <(echo "
-[req]
-distinguished_name = req_distinguished_name
-req_extensions = v3_req
-prompt = no
-
-[req_distinguished_name]
-C = CN
-ST = Beijing
-L = Beijing
-O = SingBox
-OU = Proxy
-CN = localhost
-
-[v3_req]
-basicConstraints = CA:FALSE
-keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-subjectAltName = @alt_names
-
-[alt_names]
-DNS.1 = localhost
-")
-
-# 🚀 第二阶段：构建主镜像
-FROM alpine:3.19
-
-# 🏷️ 镜像标签信息
-LABEL maintainer="charmtv" \
-      description="Sing-box 全家桶 - 一键部署多协议代理服务器" \
-      version="1.2.18" \
-      url="https://github.com/charmtv/sing-box01" \
-      vendor="charmtv"
-
-# 🎯 构建参数
-ARG TARGETARCH
+# 构建阶段
+FROM alpine:latest AS builder
+ARG TARGETARCH=amd64
+ARG S6_OVERLAY_VERSION=3.2.3.2
 ENV ARCH=$TARGETARCH
 
-# 📁 设置工作目录
+# 安装构建依赖
+RUN set -ex &&\
+  apk add --no-cache wget xz
+
+# 下载并解压 s6-overlay
+RUN set -ex &&\
+  case "$ARCH" in \
+    amd64) S6_ARCH=x86_64 ;; \
+    arm64) S6_ARCH=aarch64 ;; \
+    armv7) S6_ARCH=armhf ;; \
+    *) echo "Unsupported TARGETARCH: $ARCH" >&2; exit 1 ;; \
+  esac &&\
+  mkdir -p /rootfs &&\
+  S6_RELEASE_URL="https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}" &&\
+  for archive in s6-overlay-noarch.tar.xz "s6-overlay-${S6_ARCH}.tar.xz"; do \
+    wget -q "${S6_RELEASE_URL}/${archive}" -O "/tmp/${archive}"; \
+    wget -q "${S6_RELEASE_URL}/${archive}.sha256" -O "/tmp/${archive}.sha256"; \
+    (cd /tmp && sha256sum -c "${archive}.sha256"); \
+    tar -C /rootfs -Jxf "/tmp/${archive}"; \
+  done
+
+# 运行阶段
+FROM alpine:latest
+ARG TARGETARCH=amd64
+ENV ARCH=$TARGETARCH
+
+LABEL org.opencontainers.image.source="https://github.com/charmtv/sing-box01" \
+      org.opencontainers.image.description="Sing-box 多协议部署镜像"
+
+# 设置工作目录
 WORKDIR /sing-box
 
-# 📋 复制文件
-COPY --from=ssl-generator /private.key /sing-box/cert/private.key
-COPY --from=ssl-generator /cert.pem /sing-box/cert/cert.pem
+# 仅复制 s6-overlay 文件，避免把构建依赖带入运行镜像
+COPY --from=builder /rootfs/ /
+
+# 复制初始化脚本
 COPY docker_init.sh /sing-box/init.sh
 
-# 🔧 系统配置和依赖安装
-RUN set -ex && \
-    # 📦 安装必要的软件包
-    apk add --no-cache --virtual .build-deps supervisor wget nginx bash curl && \
-    # 👤 创建非root用户
-    addgroup -g 1000 singbox && \
-    adduser -D -u 1000 -G singbox singbox && \
-    # 📂 创建必要的目录
-    mkdir -p /sing-box/conf /sing-box/subscribe /sing-box/logs /var/log/supervisor && \
-    # 🔑 设置执行权限和文件所有权
-    chmod +x /sing-box/init.sh && \
-    chown -R singbox:singbox /sing-box && \
-    # 🔒 设置证书文件权限
-    chmod 600 /sing-box/cert/private.key && \
-    chmod 644 /sing-box/cert/cert.pem && \
-    # 🧹 清理缓存和临时文件
-    apk del .build-deps && \
-    rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+# 安装运行时依赖并生成证书
+RUN set -ex &&\
+  apk add --no-cache bash ca-certificates nginx openssl wget xxd &&\
+  mkdir -p /sing-box/cert /sing-box/conf /sing-box/subscribe /sing-box/logs &&\
+  chmod +x /sing-box/init.sh &&\
+  rm -rf /var/cache/apk/*
 
-# 👤 切换到非root用户
-USER singbox
-
-# 💡 健康检查
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8800/health || exit 1
-
-# 🔌 暴露端口
-EXPOSE 8800-8820
-
-# 🏃 启动命令
-CMD ["./init.sh"]
+CMD [ "./init.sh" ]
